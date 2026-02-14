@@ -1,14 +1,174 @@
 <!DOCTYPE html>
-<html lang="en">
+<html>
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta charset="UTF-8">
   <title>Spectrom Galaxy</title>
-  <link rel="stylesheet" href="/src/styles.css" />
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+      font-family: Arial, Helvetica, sans-serif;
+    }
+
+    body {
+      overflow: hidden;
+      background: black;
+      color: white;
+    }
+
+    #starfield {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      z-index: -1;
+    }
+
+    #app {
+      padding: 40px;
+    }
+
+    .card {
+      background: rgba(20, 0, 40, 0.7);
+      border: 1px solid rgba(180, 100, 255, 0.5);
+      border-radius: 12px;
+      padding: 20px;
+      margin-bottom: 20px;
+      backdrop-filter: blur(6px);
+    }
+
+    a {
+      color: #c77dff;
+      text-decoration: none;
+    }
+
+    a:hover {
+      text-decoration: underline;
+    }
+  </style>
 </head>
 <body>
-  <canvas id="starfield"></canvas>
-  <div id="app"></div>
-  <script type="module" src="/src/main.ts"></script>
+
+<canvas id="starfield"></canvas>
+<div id="app"></div>
+
+<script>
+  const canvas = document.getElementById("starfield");
+  const ctx = canvas.getContext("2d");
+
+  let stars = [];
+
+  function resize() {
+    canvas.width = window.innerWidth;
+    canvas.height = window.innerHeight;
+  }
+
+  function createStars(count) {
+    stars = [];
+    for (let i = 0; i < count; i++) {
+      stars.push({
+        x: Math.random() * canvas.width,
+        y: Math.random() * canvas.height,
+        radius: Math.random() * 2,
+        alpha: Math.random(),
+        speed: 0.01 + Math.random() * 0.02
+      });
+    }
+  }
+
+  function draw() {
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+    for (const star of stars) {
+      star.alpha += star.speed;
+      if (star.alpha >= 1 || star.alpha <= 0) {
+        star.speed *= -1;
+      }
+
+      ctx.beginPath();
+      ctx.arc(star.x, star.y, star.radius, 0, Math.PI * 2);
+      ctx.fillStyle = "rgba(200,100,255," + Math.abs(star.alpha) + ")";
+      ctx.shadowBlur = 8;
+      ctx.shadowColor = "purple";
+      ctx.fill();
+    }
+
+    requestAnimationFrame(draw);
+  }
+
+  function renderHome() {
+    return `
+      <div class="card">
+        <h1>Welcome to Spectrom Galaxy</h1>
+      </div>
+
+      <div class="card">
+        <h2>Discord</h2>
+        <a href="https://discord.gg/yourlink" target="_blank">Join</a>
+      </div>
+
+      <div class="card">
+        <h2>YouTube</h2>
+        <a href="https://youtube.com/yourchannel" target="_blank">Visit</a>
+      </div>
+
+      <div class="card">
+        <h2>Roblox Community</h2>
+        <a href="https://www.roblox.com/groups/yourgroup" target="_blank">Enter</a>
+      </div>
+
+      <div class="card">
+        <a href="#lore">Enter Game & Lore →</a>
+      </div>
+    `;
+  }
+
+  function renderLore() {
+    return `
+      <div class="card">
+        <h1>Game & Lore Archive</h1>
+      </div>
+
+      <div class="card">
+        <h2>Roblox Game</h2>
+        <a href="https://www.roblox.com/games/yourgame" target="_blank">Play</a>
+      </div>
+
+      <div class="card">
+        <h2>Lore Sections</h2>
+        <ul>
+          <li>Enemies</li>
+          <li>Weapons</li>
+          <li>Factions</li>
+          <li>World History</li>
+        </ul>
+      </div>
+
+      <div class="card">
+        <a href="#">← Home</a>
+      </div>
+    `;
+  }
+
+  function router() {
+    const app = document.getElementById("app");
+    if (window.location.hash === "#lore") {
+      app.innerHTML = renderLore();
+    } else {
+      app.innerHTML = renderHome();
+    }
+  }
+
+  window.addEventListener("hashchange", router);
+  window.addEventListener("resize", resize);
+
+  resize();
+  createStars(200);
+  draw();
+  router();
+</script>
+
 </body>
 </html>
