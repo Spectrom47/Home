@@ -1,174 +1,388 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-  <meta charset="UTF-8">
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
   <title>Spectrom Galaxy</title>
+  <meta name="description" content="Spectrom Galaxy — hub for Discord, YouTube, and Roblox community + lore archive." />
   <style>
-    * {
-      margin: 0;
-      padding: 0;
-      box-sizing: border-box;
-      font-family: Arial, Helvetica, sans-serif;
+    /* ===== Reset & base ===== */
+    :root {
+      --bg: #05020a;
+      --card: rgba(18, 6, 30, 0.75);
+      --accent: #c77dff;
+      --accent-strong: rgba(199,125,255,0.6);
+      --glass-border: rgba(180,100,255,0.18);
+      --max-width: 1100px;
     }
-
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    html,body { height: 100%; }
     body {
-      overflow: hidden;
-      background: black;
-      color: white;
+      font-family: Inter, Roboto, system-ui, -apple-system, "Segoe UI", Arial;
+      background: var(--bg);
+      color: #eae7ff;
+      -webkit-font-smoothing: antialiased;
+      -moz-osx-font-smoothing: grayscale;
+      overflow-x: hidden;
     }
 
+    /* ===== canvas starfield ===== */
     #starfield {
       position: fixed;
-      top: 0;
-      left: 0;
+      inset: 0;
       width: 100%;
       height: 100%;
       z-index: -1;
+      display: block;
     }
 
-    #app {
-      padding: 40px;
+    /* ===== content layout ===== */
+    .page {
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 48px 20px;
+    }
+
+    .container {
+      width: 100%;
+      max-width: var(--max-width);
+      margin: 0 auto;
+    }
+
+    header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      margin-bottom: 24px;
+    }
+
+    .brand {
+      display:flex;
+      gap:12px;
+      align-items:center;
+    }
+
+    .logo {
+      width:48px;
+      height:48px;
+      border-radius:8px;
+      background: linear-gradient(135deg,#2b004b,#5a1bd6);
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      font-weight:700;
+      color: white;
+      box-shadow: 0 6px 18px rgba(90,27,214,0.25);
+    }
+
+    nav a {
+      color: var(--accent);
+      text-decoration: none;
+      margin-left: 14px;
+      font-weight: 600;
+    }
+
+    nav a:hover { text-decoration: underline; }
+
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0,1fr));
+      gap: 20px;
+    }
+
+    @media (max-width: 800px) {
+      .grid { grid-template-columns: 1fr; }
+      header { flex-direction: column; align-items: flex-start; gap: 12px; }
     }
 
     .card {
-      background: rgba(20, 0, 40, 0.7);
-      border: 1px solid rgba(180, 100, 255, 0.5);
+      background: var(--card);
+      border: 1px solid var(--glass-border);
       border-radius: 12px;
       padding: 20px;
-      margin-bottom: 20px;
+      box-shadow: 0 8px 30px rgba(0,0,0,0.6);
       backdrop-filter: blur(6px);
+      transition: transform .18s ease, box-shadow .18s ease;
     }
 
-    a {
-      color: #c77dff;
-      text-decoration: none;
+    .card:hover { transform: translateY(-6px); box-shadow: 0 18px 40px rgba(0,0,0,0.65); }
+
+    h1 { font-size: 28px; margin-bottom: 8px; }
+    h2 { font-size: 18px; margin-bottom: 8px; color: #efeaff; }
+    p { color: #dcd6ff; line-height: 1.4; margin-bottom: 12px; }
+
+    a.btn {
+      display:inline-block;
+      padding:10px 14px;
+      border-radius:8px;
+      background: linear-gradient(90deg, rgba(160,90,255,0.14), rgba(90,20,200,0.12));
+      border: 1px solid var(--accent-strong);
+      color: var(--accent);
+      text-decoration:none;
+      font-weight:600;
     }
 
-    a:hover {
-      text-decoration: underline;
+    ul.simple { margin-left: 18px; margin-top: 8px; }
+    li { margin:6px 0; }
+
+    footer {
+      margin-top: 28px;
+      color: #afa7e6;
+      font-size:13px;
+      text-align:center;
+    }
+
+    /* small helper (for debugging when blank) */
+    .debug {
+      margin-top:10px;
+      font-size:12px;
+      color:#b8aef7;
+      opacity:0.9;
     }
   </style>
 </head>
 <body>
+  <canvas id="starfield" aria-hidden="true"></canvas>
 
-<canvas id="starfield"></canvas>
-<div id="app"></div>
+  <main id="app" class="page" role="main">
+    <div class="container" id="app-inner" aria-live="polite"></div>
+  </main>
 
-<script>
-  const canvas = document.getElementById("starfield");
-  const ctx = canvas.getContext("2d");
+  <script>
+    /* =========================
+       Starfield (purple sparkle)
+       Single-file, robust and lightweight.
+       ========================= */
+    (function starfieldModule() {
+      const canvas = document.getElementById('starfield');
+      if (!canvas) return console.warn('No canvas element for starfield.');
+      const ctx = canvas.getContext('2d');
+      if (!ctx) return console.warn('Canvas context unavailable.');
 
-  let stars = [];
+      let DPR = Math.max(1, window.devicePixelRatio || 1);
+      let W = 0, H = 0;
+      let stars = [];
 
-  function resize() {
-    canvas.width = window.innerWidth;
-    canvas.height = window.innerHeight;
-  }
-
-  function createStars(count) {
-    stars = [];
-    for (let i = 0; i < count; i++) {
-      stars.push({
-        x: Math.random() * canvas.width,
-        y: Math.random() * canvas.height,
-        radius: Math.random() * 2,
-        alpha: Math.random(),
-        speed: 0.01 + Math.random() * 0.02
-      });
-    }
-  }
-
-  function draw() {
-    ctx.clearRect(0, 0, canvas.width, canvas.height);
-
-    for (const star of stars) {
-      star.alpha += star.speed;
-      if (star.alpha >= 1 || star.alpha <= 0) {
-        star.speed *= -1;
+      function rand(a = 0, b = 1) { return a + Math.random() * (b - a); }
+      function resize() {
+        DPR = Math.max(1, window.devicePixelRatio || 1);
+        W = Math.max(300, Math.floor(window.innerWidth));
+        H = Math.max(200, Math.floor(window.innerHeight));
+        canvas.width = W * DPR;
+        canvas.height = H * DPR;
+        canvas.style.width = W + 'px';
+        canvas.style.height = H + 'px';
+        ctx.setTransform(DPR, 0, 0, DPR, 0, 0);
+        createStars(Math.round((W * H) / 5000)); // density scales with area
       }
 
-      ctx.beginPath();
-      ctx.arc(star.x, star.y, star.radius, 0, Math.PI * 2);
-      ctx.fillStyle = "rgba(200,100,255," + Math.abs(star.alpha) + ")";
-      ctx.shadowBlur = 8;
-      ctx.shadowColor = "purple";
-      ctx.fill();
-    }
+      function createStars(count) {
+        stars = [];
+        for (let i = 0; i < count; i++) {
+          stars.push({
+            x: Math.random() * W,
+            y: Math.random() * H,
+            baseR: Math.random() * 1.6 + 0.2,
+            phase: Math.random() * Math.PI * 2,
+            pulseSpeed: 0.002 + Math.random() * 0.006,
+            hueShift: rand(-10, 10),
+            driftX: rand(-0.02, 0.02),
+            driftY: rand(-0.02, 0.02)
+          });
+        }
+      }
 
-    requestAnimationFrame(draw);
-  }
+      let tStart = performance.now();
+      function draw(now) {
+        const t = (now - tStart);
+        ctx.clearRect(0, 0, W, H);
 
-  function renderHome() {
-    return `
-      <div class="card">
-        <h1>Welcome to Spectrom Galaxy</h1>
-      </div>
+        // subtle radial purple vignette
+        const g = ctx.createLinearGradient(0, 0, 0, H);
+        g.addColorStop(0, 'rgba(10,6,20,0.12)');
+        g.addColorStop(1, 'rgba(0,0,0,0.28)');
+        ctx.fillStyle = g;
+        ctx.fillRect(0, 0, W, H);
 
-      <div class="card">
-        <h2>Discord</h2>
-        <a href="https://discord.gg/yourlink" target="_blank">Join</a>
-      </div>
+        for (let s of stars) {
+          s.phase += s.pulseSpeed * (1 + Math.sin(t * 0.0006 + s.phase) * 0.2);
+          s.x += s.driftX;
+          s.y += s.driftY;
 
-      <div class="card">
-        <h2>YouTube</h2>
-        <a href="https://youtube.com/yourchannel" target="_blank">Visit</a>
-      </div>
+          // wrap around edges
+          if (s.x < -10) s.x = W + 10;
+          if (s.x > W + 10) s.x = -10;
+          if (s.y < -10) s.y = H + 10;
+          if (s.y > H + 10) s.y = -10;
 
-      <div class="card">
-        <h2>Roblox Community</h2>
-        <a href="https://www.roblox.com/groups/yourgroup" target="_blank">Enter</a>
-      </div>
+          const pulse = (0.5 + 0.5 * Math.sin(s.phase));
+          const r = s.baseR * (0.8 + pulse * 1.6);
+          const alpha = 0.35 + pulse * 0.65;
+          ctx.beginPath();
+          ctx.arc(s.x, s.y, r, 0, Math.PI * 2);
+          ctx.fillStyle = 'rgba(200,140,255,' + (alpha * 0.9) + ')';
+          ctx.shadowBlur = 8 + pulse * 6;
+          ctx.shadowColor = 'rgba(170,110,255,0.9)';
+          ctx.fill();
+        }
 
-      <div class="card">
-        <a href="#lore">Enter Game & Lore →</a>
-      </div>
-    `;
-  }
+        requestAnimationFrame(draw);
+      }
 
-  function renderLore() {
-    return `
-      <div class="card">
-        <h1>Game & Lore Archive</h1>
-      </div>
+      window.addEventListener('resize', debounce(resize, 120));
+      resize();
+      requestAnimationFrame(draw);
 
-      <div class="card">
-        <h2>Roblox Game</h2>
-        <a href="https://www.roblox.com/games/yourgame" target="_blank">Play</a>
-      </div>
+      // tiny debounce helper
+      function debounce(fn, wait) {
+        let timeout;
+        return function() {
+          clearTimeout(timeout);
+          timeout = setTimeout(() => fn.apply(this, arguments), wait);
+        };
+      }
+    })();
 
-      <div class="card">
-        <h2>Lore Sections</h2>
-        <ul>
-          <li>Enemies</li>
-          <li>Weapons</li>
-          <li>Factions</li>
-          <li>World History</li>
-        </ul>
-      </div>
+    /* =========================
+       Simple hash router + content
+       Two pages: Home (/) and Lore (#/lore)
+       Upload this file as index.html to repo root.
+       ========================= */
 
-      <div class="card">
-        <a href="#">← Home</a>
-      </div>
-    `;
-  }
+    (function appModule() {
+      const inner = document.getElementById('app-inner');
 
-  function router() {
-    const app = document.getElementById("app");
-    if (window.location.hash === "#lore") {
-      app.innerHTML = renderLore();
-    } else {
-      app.innerHTML = renderHome();
-    }
-  }
+      // Replace these with your real links
+      const LINKS = {
+        discord: "https://discord.gg/YOUR_INVITE",
+        youtube: "https://youtube.com/YOUR_CHANNEL",
+        robloxGroup: "https://www.roblox.com/groups/YOUR_GROUP",
+        robloxGame: "https://www.roblox.com/games/YOUR_GAME_ID"
+      };
 
-  window.addEventListener("hashchange", router);
-  window.addEventListener("resize", resize);
+      function renderHome() {
+        return `
+          <header>
+            <div class="brand">
+              <div class="logo">SG</div>
+              <div>
+                <div style="font-weight:700">Spectrom Galaxy</div>
+                <div style="font-size:13px;color:#bfb1ff;margin-top:2px">Portal hub • community • lore</div>
+              </div>
+            </div>
+            <nav>
+              <a href="#/">Home</a>
+              <a href="#/lore">Game & Lore</a>
+            </nav>
+          </header>
 
-  resize();
-  createStars(200);
-  draw();
-  router();
-</script>
+          <section class="grid" aria-label="Main links">
+            <div class="card">
+              <h1>Welcome aboard</h1>
+              <p>Portal hub linking Discord, YouTube, and the Roblox community. The starfield in the background sparkles with a purple hue.</p>
+              <div class="debug">If this panel is visible then the page is running correctly.</div>
+            </div>
 
+            <div class="card">
+              <h2>Community</h2>
+              <p><a class="btn" href="${LINKS.discord}" target="_blank" rel="noopener">Join Discord</a></p>
+              <p style="margin-top:8px"><a class="btn" href="${LINKS.youtube}" target="_blank" rel="noopener">YouTube Channel</a></p>
+            </div>
+
+            <div class="card">
+              <h2>Roblox</h2>
+              <p>Group / Community:</p>
+              <p><a class="btn" href="${LINKS.robloxGroup}" target="_blank" rel="noopener">Roblox Community</a></p>
+            </div>
+
+            <div class="card">
+              <h2>Explore</h2>
+              <p>Build your lore gradually: enemies, weapons, factions, and history.</p>
+              <p><a class="btn" href="#/lore">Open Game & Lore →</a></p>
+            </div>
+          </section>
+
+          <footer>
+            <div>Made with curiosity • Spectrom Galaxy</div>
+          </footer>
+        `;
+      }
+
+      function renderLore() {
+        return `
+          <header>
+            <div class="brand">
+              <div class="logo">SG</div>
+              <div>
+                <div style="font-weight:700">Game & Lore Archive</div>
+                <div style="font-size:13px;color:#bfb1ff;margin-top:2px">Early wiki — expand over time</div>
+              </div>
+            </div>
+            <nav>
+              <a href="#/">Home</a>
+              <a href="#/lore">Game & Lore</a>
+            </nav>
+          </header>
+
+          <section class="grid">
+            <div class="card">
+              <h1>Play the Game</h1>
+              <p>Click below to open the Roblox experience.</p>
+              <p><a class="btn" href="${LINKS.robloxGame}" target="_blank" rel="noopener">Play on Roblox</a></p>
+            </div>
+
+            <div class="card">
+              <h2>Lore Sections (start)</h2>
+              <p>Use these as categories for entries you add over time.</p>
+              <ul class="simple">
+                <li>Enemies — short entries + images</li>
+                <li>Weapons — stats, rarity, notes</li>
+                <li>Factions — leaders & allegiances</li>
+                <li>World History — timeline & major events</li>
+              </ul>
+              <p style="margin-top:12px">Later you can import JSON to dynamically render these lists.</p>
+            </div>
+
+            <div class="card">
+              <h2>Example Entry</h2>
+              <p><strong>Shade Warden</strong><br/>A mid-tier enemy that patrols ruined outposts. Weak to light-based weapons.</p>
+            </div>
+
+            <div class="card">
+              <h2>Back</h2>
+              <p><a class="btn" href="#/">← Return Home</a></p>
+            </div>
+          </section>
+
+          <footer>
+            <div>Start small — grow into a codex.</div>
+          </footer>
+        `;
+      }
+
+      // Router: hash-based
+      function route() {
+        const hash = location.hash.replace(/^#/, '') || '/';
+        if (hash === '/lore' || hash === '/lore/') {
+          inner.innerHTML = renderLore();
+        } else {
+          inner.innerHTML = renderHome();
+        }
+        // small focus for keyboard users
+        const firstHeading = inner.querySelector('h1, h2');
+        if (firstHeading) firstHeading.setAttribute('tabindex', '-1'), firstHeading.focus();
+      }
+
+      window.addEventListener('hashchange', route);
+      // on first load:
+      route();
+
+      // Helpful console hints for debugging blank pages:
+      console.log('Spectrom Galaxy loaded — router active. If the page is blank, open DevTools (F12) and check the Console/Network tabs.');
+    })();
+  </script>
 </body>
 </html>
