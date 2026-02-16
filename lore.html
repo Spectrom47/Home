@@ -4,6 +4,7 @@
     <meta charset="UTF-8">
     <title>Lore - Spectrom Universe</title>
     <link rel="stylesheet" href="style.css">
+    <script defer src="lore.js"></script>
 </head>
 <body>
 
@@ -12,34 +13,61 @@
 <div class="content">
     <h1>Game & Lore Archive</h1>
 
+    <!-- PLAY GAME SECTION -->
     <div class="card">
         <h2>Play The Game</h2>
-        <a href="https://www.roblox.com/games/75852074511391/Soulspire" target="_blank">Roblox Game Link</a>
+
+        <div class="game-preview">
+            <img src="images/game-preview.jpg" alt="Game Preview">
+        </div>
+
+        <a class="play-button" href="https://www.roblox.com/games/75852074511391/Soulspire" target="_blank">
+            Launch on Roblox
+        </a>
     </div>
 
+    <!-- LORE SECTION -->
     <div class="card">
         <h2>Lore Sections</h2>
 
-        <h3>Enemies</h3>
-        <ul>
-            <li>Void Stalker</li>
-            <li>Crystal Revenant</li>
-            <li>Starborn Sentinel</li>
-        </ul>
+        <div class="lore-buttons">
+            <button onclick="toggleSection('enemies')">Enemies</button>
+            <button onclick="toggleSection('weapons')">Weapons</button>
+            <button onclick="toggleSection('factions')">Factions</button>
+        </div>
 
-        <h3>Weapons</h3>
-        <ul>
-            <li>Phaseblade Mk I</li>
-            <li>Nova Hammer</li>
-            <li>Celestial Bow</li>
-        </ul>
+        <!-- ENEMIES -->
+        <div id="enemies" class="lore-section hidden">
+            <div class="lore-entry">
+                <img src="images/void-stalker.jpg">
+                <div>
+                    <h3>Void Stalker</h3>
+                    <p>A shadow-dwelling predator that phases between dimensions.</p>
+                </div>
+            </div>
+        </div>
 
-        <h3>Factions</h3>
-        <ul>
-            <li>Order of the Nebula</li>
-            <li>The Shattered Core</li>
-            <li>Echo Syndicate</li>
-        </ul>
+        <!-- WEAPONS -->
+        <div id="weapons" class="lore-section hidden">
+            <div class="lore-entry">
+                <img src="images/phaseblade.jpg">
+                <div>
+                    <h3>Phaseblade Mk I</h3>
+                    <p>A prototype energy blade that destabilizes matter on contact.</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- FACTIONS -->
+        <div id="factions" class="lore-section hidden">
+            <div class="lore-entry">
+                <div>
+                    <h3>Order of the Nebula</h3>
+                    <p>A cosmic order sworn to protect the Soulspire.</p>
+                </div>
+            </div>
+        </div>
+
     </div>
 
     <a class="nav-button" href="index.html">← Back Home</a>
