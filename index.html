@@ -19,22 +19,54 @@
         <section class="hero">
             <h1 class="title">Spectrom Universe</h1>
             <p class="subtitle">Welcome to the cosmic gateway.</p>
-            <a class="nav-button" href="lore.html">Enter The Lore →</a>
-        </section>
-
-        <!-- Community Section -->
-        <section class="community card">
-            <h2>Community Links</h2>
-            <nav>
-                <ul>
-                    <li><a href="https://discord.gg/k2hBkDSdUV" target="_blank">Join the Discord</a></li>
-                    <li><a href="https://www.youtube.com/@Dark_Spectrom" target="_blank">YouTube Channel</a></li>
-                    <li><a href="https://www.roblox.com/communities/35685387/Soulspire-Community#!/about" target="_blank">Roblox Community</a></li>
-                </ul>
-            </nav>
+            
+            <div class="button-group">
+                <a class="nav-button" href="lore.html">Enter The Lore →</a>
+                
+                <div class="dropdown">
+                    <button class="nav-button dropdown-toggle" id="communityDropdown">
+                        Community Links
+                        <span class="dropdown-arrow">▼</span>
+                    </button>
+                    <div class="dropdown-menu" id="dropdownMenu">
+                        <a href="https://discord.gg/k2hBkDSdUV" target="_blank" class="dropdown-item">
+                            <span class="item-icon">💬</span>
+                            <span>Join the Discord</span>
+                        </a>
+                        <a href="https://www.youtube.com/@Dark_Spectrom" target="_blank" class="dropdown-item">
+                            <span class="item-icon">🎥</span>
+                            <span>YouTube Channel</span>
+                        </a>
+                        <a href="https://www.roblox.com/communities/35685387/Soulspire-Community#!/about" target="_blank" class="dropdown-item">
+                            <span class="item-icon">🎮</span>
+                            <span>Roblox Community</span>
+                        </a>
+                    </div>
+                </div>
+            </div>
         </section>
 
     </main>
+
+    <script>
+        // Dropdown functionality
+        const dropdownToggle = document.getElementById('communityDropdown');
+        const dropdownMenu = document.getElementById('dropdownMenu');
+
+        dropdownToggle.addEventListener('click', function(e) {
+            e.preventDefault();
+            dropdownMenu.classList.toggle('show');
+            this.classList.toggle('active');
+        });
+
+        // Close dropdown when clicking outside
+        document.addEventListener('click', function(e) {
+            if (!e.target.closest('.dropdown')) {
+                dropdownMenu.classList.remove('show');
+                dropdownToggle.classList.remove('active');
+            }
+        });
+    </script>
 
 </body>
 </html>
