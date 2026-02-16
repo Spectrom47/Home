@@ -2,151 +2,47 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>Lore Archive - Spectrom Universe</title>
+    <title>Lore - Spectrom Universe</title>
     <link rel="stylesheet" href="style.css">
-    <script defer src="lore.js"></script>
 </head>
 <body>
 
-<div class="stars layer1"></div>
-<div class="stars layer2"></div>
-<div class="stars layer3"></div>
+<div class="stars"></div>
 
 <div class="content">
+    <h1>Game & Lore Archive</h1>
 
-    <header class="archive-header">
-        <h1>SOULSPIRE ARCHIVE TERMINAL</h1>
-        <p class="subtitle">Encrypted Records • Sector 7</p>
-    </header>
+    <div class="card">
+        <h2>Play The Game</h2>
+        <a href="https://www.roblox.com/games/75852074511391/Soulspire" target="_blank">Roblox Game Link</a>
+    </div>
 
-    <!-- PLAY GAME SECTION -->
-    <section class="card glass">
-        <h2>Deploy to Soulspire</h2>
+    <div class="card">
+        <h2>Lore Sections</h2>
 
-        <div class="game-preview">
-            <img src="images/icon.png" alt="Soulspire Icon">
-            <div class="glow-ring"></div>
-        </div>
+        <h3>Enemies</h3>
+        <ul>
+            <li>Void Stalker</li>
+            <li>Crystal Revenant</li>
+            <li>Starborn Sentinel</li>
+        </ul>
 
-        <p class="description">
-            Enter the fractured spire. Bend dimensional energy. Survive the entities between.
-        </p>
+        <h3>Weapons</h3>
+        <ul>
+            <li>Phaseblade Mk I</li>
+            <li>Nova Hammer</li>
+            <li>Celestial Bow</li>
+        </ul>
 
-        <a class="play-button"
-           href="https://www.roblox.com/games/75852074511391/Soulspire"
-           target="_blank">
-            Launch on Roblox
-        </a>
-    </section>
+        <h3>Factions</h3>
+        <ul>
+            <li>Order of the Nebula</li>
+            <li>The Shattered Core</li>
+            <li>Echo Syndicate</li>
+        </ul>
+    </div>
 
-    <!-- LORE SECTION -->
-    <section class="card glass">
-        <h2>Archive Database</h2>
-
-        <input type="text" id="searchBar" placeholder="Search archive...">
-
-        <div class="lore-tabs">
-            <button onclick="toggleSection('enemies')">Entities</button>
-            <button onclick="toggleSection('weapons')">Relics</button>
-            <button onclick="toggleSection('factions')">Factions</button>
-            <button onclick="toggleSection('timeline')">Timeline</button>
-        </div>
-
-        <!-- ENEMIES -->
-        <div id="enemies" class="lore-section hidden">
-
-            <div class="lore-entry collapsible">
-                <img src="images/void-stalker.jpg" alt="Void Stalker">
-                <div class="entry-content">
-                    <h3>Void Stalker <span class="rarity rare">Rare</span></h3>
-                    <p class="summary">
-                        Interdimensional predator drawn to unstable energy signatures.
-                    </p>
-                    <div class="details">
-                        <p>
-                            Void Stalkers phase between reality layers using microfractures
-                            created by Soulspire resonance. They do not hunt randomly —
-                            they respond to fear spikes.
-                        </p>
-                        <p><strong>Weakness:</strong> Harmonic overload.</p>
-                    </div>
-                </div>
-            </div>
-
-            <div class="lore-entry collapsible classified">
-                <div class="entry-content">
-                    <h3>[REDACTED ENTITY] <span class="rarity mythic">Mythic</span></h3>
-                    <p class="summary">Access Restricted.</p>
-                    <div class="details">
-                        <p>Clear Tier-4 archive permissions to view.</p>
-                    </div>
-                </div>
-            </div>
-
-        </div>
-
-        <!-- WEAPONS -->
-        <div id="weapons" class="lore-section hidden">
-
-            <div class="lore-entry collapsible">
-                <img src="images/phaseblade.jpg" alt="Phaseblade">
-                <div class="entry-content">
-                    <h3>Phaseblade Mk I <span class="rarity experimental">Experimental</span></h3>
-                    <p class="summary">
-                        A destabilization blade tuned to partial dimensional offset.
-                    </p>
-                    <div class="details">
-                        <p>
-                            The Mk I is unstable. Its crystal core fractures over time,
-                            causing unpredictable surge bursts.
-                        </p>
-                        <p><strong>Status:</strong> Prototype.</p>
-                    </div>
-                </div>
-            </div>
-
-        </div>
-
-        <!-- FACTIONS -->
-        <div id="factions" class="lore-section hidden">
-
-            <div class="lore-entry collapsible">
-                <div class="entry-content">
-                    <h3>Order of the Nebula <span class="rarity legendary">Legendary</span></h3>
-                    <p class="summary">
-                        Guardians sworn to contain the Soulspire anomaly.
-                    </p>
-                    <div class="details">
-                        <p>
-                            Founded after the First Collapse Event. Members undergo
-                            cognitive resonance conditioning to resist corruption.
-                        </p>
-                        <p><strong>Motto:</strong> “Contain the fracture.”</p>
-                    </div>
-                </div>
-            </div>
-
-        </div>
-
-        <!-- TIMELINE -->
-        <div id="timeline" class="lore-section hidden">
-
-            <div class="timeline-entry">
-                <h3>Year 0 – The Fracture</h3>
-                <p>The Soulspire emits its first dimensional pulse.</p>
-            </div>
-
-            <div class="timeline-entry">
-                <h3>Year 12 – Collapse Event</h3>
-                <p>First confirmed Void Stalker manifestation.</p>
-            </div>
-
-        </div>
-
-    </section>
-
-    <a class="nav-button" href="index.html">← Return to Origin</a>
-
+    <a class="nav-button" href="index.html">← Back Home</a>
 </div>
 
 </body>
