@@ -209,6 +209,23 @@ document.addEventListener('DOMContentLoaded', () => {
   document.getElementById('gallery-lightbox').addEventListener('click', () => { document.getElementById('gallery-lightbox').classList.add('hidden'); });
   renderGallery();
 
+  // --- load images/manifest.json from the repo (if present) so images added to /images show up automatically on GitHub Pages ---
+  async function loadGalleryManifest() {
+    try {
+      const res = await fetch('images/manifest.json', { cache: 'no-cache' });
+      if (!res.ok) return;
+      const list = await res.json();
+      if (!Array.isArray(list) || list.length === 0) return;
+      const normalized = list.map(p => (p.startsWith('http') || p.startsWith('/') ? p : `images/${p.replace(/^images\//, '')}`));
+      let changed = false;
+      for (const src of normalized) {
+        if (!gallery.includes(src)) { gallery.push(src); changed = true; }
+      }
+      if (changed) { localStorage.setItem(GALLERY_KEY, JSON.stringify(gallery)); renderGallery(); }
+    } catch (err) { /* ignore manifest errors */ }
+  }
+  loadGalleryManifest();
+
   monthlySalaryEl.value = localStorage.getItem(SALARY_KEY) || '';
   renderBills();
 
