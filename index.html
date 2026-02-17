@@ -13,152 +13,94 @@
     <h1>Spectrom</h1>
     <p class="subtitle">Welcome to my Domain!</p>
 
-    <!-- Main menu with two primary actions (Community, Widgets) -->
-    <div class="main-actions" id="main-actions">
-        <div class="action-row">
-            <button id="open-community" class="nav-button main-btn">Join Community — Discord, YouTube, Roblox</button>
-            <button id="open-widgets-main" class="nav-button main-btn">Interactive Widgets</button>
-        </div>
+    <div class="toolbar">
+        <button id="like-btn" class="like-btn" aria-pressed="false" title="Like Spectrom">
+            <span class="heart">❤</span>
+            <span id="like-count">0</span>
+        </button>
+        <button id="widgets-open-btn" class="nav-button widgets-button" title="Open Widgets">Open Widgets ▾</button>
     </div>
 
-    <!-- Community card (hidden by default; opened from main menu) -->
-    <div id="community-card" class="card hidden" aria-hidden="true">
-        <div class="community-header" style="display:flex;justify-content:space-between;align-items:center;gap:8px;">
-            <h2>Community</h2>
-            <button id="close-community" class="small-btn">Back</button>
-        </div>
-
+    <div class="card">
+        <h2>Community</h2>
         <a href="https://discord.gg/k2hBkDSdUV" target="_blank">Join the Discord</a>
         <a href="https://www.youtube.com/@Dark_Spectrom" target="_blank">YouTube Channel</a>
         <a href="https://www.roblox.com/communities/35685387/Soulspire-Community#!/about" target="_blank">Roblox Community</a>
     </div>
 
-    <!-- Interactive widget area (hidden on-page) — widgets are opened via the launcher -->
-    <div class="widgets" aria-hidden="true">
-        <h3 class="sr-only">Interactive Widgets (use the launcher)</h3>
-        <div class="widget-grid" id="widget-grid">
-
-            <!-- Like widget (moved to modal when opened) -->
-            <div class="widget widget-like" data-widget="like">
-                <div class="like-top">
-                    <strong>Like this page</strong>
-                    <div id="like-count" class="like-count">128</div>
-                </div>
-
-                <button id="like-btn" class="like-btn" aria-pressed="false" title="Like">
-                    <svg width="36" height="36" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                        <path d="M12 21s-7-4.35-9-6.5C-1 10.5 3.6 4 8.5 6.5 11 8 12 11 12 11s1-3 3.5-4.5C20.4 4 25 10.5 21 14.5 19 16.65 12 21 12 21z" stroke="currentColor" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round"/>
-                    </svg>
-                </button>
-                <p class="widget-note">Likes persist locally (stored in your browser).</p>
-            </div>
-
-            <!-- Calculator widget -->
-            <div class="widget widget-calculator" data-widget="calculator">
-                <strong>Calculator</strong>
-                <div id="calc-display" class="calc-display">0</div>
-                <div class="calc-keys">
-                    <button class="calc-key" data-value="7">7</button>
-                    <button class="calc-key" data-value="8">8</button>
-                    <button class="calc-key" data-value="9">9</button>
-                    <button class="calc-key operator" data-value="/">÷</button>
-
-                    <button class="calc-key" data-value="4">4</button>
-                    <button class="calc-key" data-value="5">5</button>
-                    <button class="calc-key" data-value="6">6</button>
-                    <button class="calc-key operator" data-value="*">×</button>
-
-                    <button class="calc-key" data-value="1">1</button>
-                    <button class="calc-key" data-value="2">2</button>
-                    <button class="calc-key" data-value="3">3</button>
-                    <button class="calc-key operator" data-value="-">−</button>
-
-                    <button class="calc-key" data-value="0">0</button>
-                    <button class="calc-key" data-value=".">.</button>
-                    <button class="calc-key" data-value="DEL">DEL</button>
-                    <button class="calc-key operator" data-value="+">+</button>
-
-                    <button class="calc-key control" data-value="AC">AC</button>
-                    <button class="calc-key control equals" data-value="=">=</button>
-                </div>
-            </div>
-
-            <!-- Worm (Snake) widget -->
-            <div class="widget widget-worm" data-widget="worm">
-                <strong>Worm (Basic)</strong>
-                <canvas id="worm-canvas" width="300" height="300" aria-label="Worm game"></canvas>
-                <div class="worm-controls">
-                    <div class="worm-buttons">
-                        <button id="worm-start" class="small-btn">Start</button>
-                        <button id="worm-pause" class="small-btn">Pause</button>
-                        <button id="worm-reset" class="small-btn">Reset</button>
-                    </div>
-                    <div id="worm-score" class="worm-score">Score: 0</div>
-                </div>
-                <p class="widget-note">Use arrow keys or WASD to move.</p>
-            </div>
-
-            <!-- Bills & Net Worth widget -->
-            <div class="widget widget-bills" data-widget="bills">
-                <strong>Bills & Net-worth</strong>
-
-                <div class="bills-form">
-                    <input id="bill-name" placeholder="Bill name (e.g. Rent)">
-                    <input id="bill-amount" type="number" min="0" step="0.01" placeholder="Amount">
-                    <button id="add-bill" class="small-btn">Add</button>
-                </div>
-
-                <ul id="bills-list" class="bills-list"></ul>
-
-                <div class="bills-summary">
-                    <label class="salary-label">Monthly net salary: <input id="monthly-salary" type="number" min="0" step="0.01" placeholder="0"></label>
-                    <div>Total bills: $<span id="total-bills">0.00</span></div>
-                    <div>Disposable / mo: $<span id="disposable">0.00</span></div>
-                    <div>Disposable / yr: $<span id="disposable-year">0.00</span></div>
-                </div>
-
-                <div class="bills-actions">
-                    <button id="clear-bills" class="small-btn">Clear</button>
-                    <button id="sample-bills" class="small-btn">Add sample</button>
-                </div>
-                <p class="widget-note">Add any number of bills — totals update live.</p>
-            </div>
-
-        </div>
-    </div>
-
-    <!-- Floating launcher (button directory) -->
-    <div class="widget-launcher" id="widget-launcher">
-        <div class="launcher-menu" role="menu" aria-label="Widgets menu">
-            <button class="launcher-item" data-widget="bills" role="menuitem">Bills & Net-worth</button>
-            <button class="launcher-item" data-widget="calculator" role="menuitem">Calculator</button>
-            <button class="launcher-item" data-widget="worm" role="menuitem">Worm</button>
-            <button class="launcher-item" data-widget="like" role="menuitem">Like</button>
-        </div>
-        <button id="launcher-toggle" class="fab" aria-expanded="false" aria-controls="widget-grid">Widgets</button>
-    </div>
-
-    <!-- Modal (shows one widget at a time) -->
-    <div class="widget-modal hidden" id="widget-modal" aria-hidden="true">
-        <div class="widget-modal-backdrop" id="widget-backdrop" tabindex="-1"></div>
-        <div class="widget-modal-panel" role="dialog" aria-modal="true" aria-labelledby="widget-title">
-            <div class="widget-modal-header">
-                <h3 id="widget-title">Widgets</h3>
-                <div class="widget-modal-controls">
-                    <button id="widget-prev" class="small-btn" title="Previous">◀</button>
-                    <button id="widget-next" class="small-btn" title="Next">▶</button>
-                    <button id="widget-close" class="small-btn" title="Close">✕</button>
-                </div>
-            </div>
-            <div class="widget-modal-body">
-                <div id="modal-widget-area"></div>
-            </div>
-        </div>
-    </div>
-
     <a class="nav-button" href="lore.html">Enter The Lore →</a>
 </div>
 
-<script src="main.js" defer></script>
+<!-- Widgets modal (single-entry subfolder for interactive widgets) -->
+<div id="widgets-modal" class="widgets-modal hidden" role="dialog" aria-hidden="true">
+  <div class="widgets-overlay" id="widgets-overlay"></div>
+  <div class="widgets-panel">
+    <button class="widgets-close" id="widgets-close" aria-label="Close widgets">✕</button>
+    <h3>Interactive Widgets</h3>
+    <div class="widgets-menu">
+      <button class="widget-tab active" data-widget="calculator">Calculator</button>
+      <button class="widget-tab" data-widget="bills">Bills & Net</button>
+      <button class="widget-tab" data-widget="worm">Worm Game</button>
+    </div>
+
+    <div class="widgets-content">
+      <section id="widget-calculator" class="widget active">
+        <input id="calc-display" class="calc-display" placeholder="Type expression — e.g. 12 + 3*4" />
+        <div class="calc-controls">
+          <button data-insert="7">7</button><button data-insert="8">8</button><button data-insert="9">9</button><button data-action="clear">C</button>
+          <button data-insert="4">4</button><button data-insert="5">5</button><button data-insert="6">6</button><button data-insert="+">+</button>
+          <button data-insert="1">1</button><button data-insert="2">2</button><button data-insert="3">3</button><button data-insert="-">-</button>
+          <button data-insert="0">0</button><button data-insert=".">.</button><button data-insert="/">/</button><button data-insert="*">*</button>
+        </div>
+        <div class="calc-actions">
+          <button id="calc-eval" class="btn">Evaluate</button>
+          <button id="calc-clear" class="btn btn-ghost">Reset</button>
+          <div id="calc-result" class="calc-result" aria-live="polite"></div>
+        </div>
+      </section>
+
+      <section id="widget-bills" class="widget hidden">
+        <div class="bills-controls">
+          <div id="bills-list"></div>
+          <div class="bills-add">
+            <input id="bill-amount" type="number" placeholder="Bill amount" />
+            <button id="add-bill" class="btn">Add Bill</button>
+            <button id="sample-bills" class="btn btn-ghost">Add Sample</button>
+          </div>
+          <div class="bills-summary">
+            <div>Total bills: <strong id="bills-total">$0.00</strong></div>
+            <label>Monthly net salary:
+              <input id="monthly-salary" type="number" placeholder="e.g. 3000" />
+            </label>
+            <div>Monthly remainder: <strong id="monthly-remainder">$0.00</strong></div>
+            <div>Projected yearly savings: <strong id="yearly-savings">$0.00</strong></div>
+            <div class="bills-actions">
+              <button id="save-bills" class="btn">Save</button>
+              <button id="clear-bills" class="btn btn-ghost">Clear</button>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section id="widget-worm" class="widget hidden">
+        <canvas id="worm-canvas" width="360" height="360"></canvas>
+        <div class="worm-controls">
+          <div>Score: <span id="worm-score">0</span></div>
+          <div class="worm-buttons">
+            <button id="worm-start" class="btn">Start</button>
+            <button id="worm-pause" class="btn btn-ghost">Pause</button>
+            <button id="worm-reset" class="btn btn-ghost">Reset</button>
+          </div>
+        </div>
+      </section>
+    </div>
+
+    <footer class="widgets-footer">
+      <small>Stored locally — no data leaves your browser.</small>
+    </footer>
+  </div>
+</div>
+
+<script src="main.js"></script>
 </body>
 </html>
