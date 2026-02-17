@@ -20,13 +20,13 @@
         <a href="https://www.roblox.com/communities/35685387/Soulspire-Community#!/about" target="_blank">Roblox Community</a>
     </div>
 
-    <!-- Interactive widget area (hidden on-page) — widgets are opened via the launcher -->
-    <div class="widgets" aria-hidden="true">
-        <h3 class="sr-only">Interactive Widgets (use the launcher)</h3>
-        <div class="widget-grid" id="widget-grid">
+    <!-- Interactive widget area: Like, Calculator, Worm game, Bills & Net-worth -->
+    <div class="widgets">
+        <h3>Interactive Widgets</h3>
+        <div class="widget-grid">
 
-            <!-- Like widget (moved to modal when opened) -->
-            <div class="widget widget-like" data-widget="like">
+            <!-- Like widget -->
+            <div class="widget widget-like">
                 <div class="like-top">
                     <strong>Like this page</strong>
                     <div id="like-count" class="like-count">128</div>
@@ -41,7 +41,7 @@
             </div>
 
             <!-- Calculator widget -->
-            <div class="widget widget-calculator" data-widget="calculator">
+            <div class="widget widget-calculator">
                 <strong>Calculator</strong>
                 <div id="calc-display" class="calc-display">0</div>
                 <div class="calc-keys">
@@ -71,7 +71,7 @@
             </div>
 
             <!-- Worm (Snake) widget -->
-            <div class="widget widget-worm" data-widget="worm">
+            <div class="widget widget-worm">
                 <strong>Worm (Basic)</strong>
                 <canvas id="worm-canvas" width="300" height="300" aria-label="Worm game"></canvas>
                 <div class="worm-controls">
@@ -86,7 +86,7 @@
             </div>
 
             <!-- Bills & Net Worth widget -->
-            <div class="widget widget-bills" data-widget="bills">
+            <div class="widget widget-bills">
                 <strong>Bills & Net-worth</strong>
 
                 <div class="bills-form">
@@ -111,35 +111,6 @@
                 <p class="widget-note">Add any number of bills — totals update live.</p>
             </div>
 
-        </div>
-    </div>
-
-    <!-- Floating launcher (button directory) -->
-    <div class="widget-launcher" id="widget-launcher">
-        <div class="launcher-menu" role="menu" aria-label="Widgets menu">
-            <button class="launcher-item" data-widget="bills" role="menuitem">Bills & Net-worth</button>
-            <button class="launcher-item" data-widget="calculator" role="menuitem">Calculator</button>
-            <button class="launcher-item" data-widget="worm" role="menuitem">Worm</button>
-            <button class="launcher-item" data-widget="like" role="menuitem">Like</button>
-        </div>
-        <button id="launcher-toggle" class="fab" aria-expanded="false" aria-controls="widget-grid">Widgets</button>
-    </div>
-
-    <!-- Modal (shows one widget at a time) -->
-    <div class="widget-modal hidden" id="widget-modal" aria-hidden="true">
-        <div class="widget-modal-backdrop" id="widget-backdrop" tabindex="-1"></div>
-        <div class="widget-modal-panel" role="dialog" aria-modal="true" aria-labelledby="widget-title">
-            <div class="widget-modal-header">
-                <h3 id="widget-title">Widgets</h3>
-                <div class="widget-modal-controls">
-                    <button id="widget-prev" class="small-btn" title="Previous">◀</button>
-                    <button id="widget-next" class="small-btn" title="Next">▶</button>
-                    <button id="widget-close" class="small-btn" title="Close">✕</button>
-                </div>
-            </div>
-            <div class="widget-modal-body">
-                <div id="modal-widget-area"></div>
-            </div>
         </div>
     </div>
 
