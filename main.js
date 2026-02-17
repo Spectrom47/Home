@@ -224,7 +224,8 @@ document.addEventListener('DOMContentLoaded', () => {
 
   function resizeCanvas() {
     const wrap = canvas.parentElement || document.body;
-    const avail = Math.min(360, Math.max(120, wrap.clientWidth || window.innerWidth * 0.9));
+    // allow a much larger canvas on modern phones while keeping sensible minimums
+    const avail = Math.min(520, Math.max(160, Math.floor((wrap.clientWidth || window.innerWidth) * 0.92)));
     canvas.style.width = avail + 'px';
     canvas.style.height = avail + 'px';
     dpr = Math.max(1, window.devicePixelRatio || 1);
