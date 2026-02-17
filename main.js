@@ -292,7 +292,14 @@ document.addEventListener('DOMContentLoaded', () => {
     if (!r.ok) throw new Error('ZIP not found');
     const j = await r.json();
     const place = j.places && j.places[0];
-    return { lat: Number(place.latitude), lon: Number(place.longitude), name: `${place['place name']}, ${j['state abbreviation']}` };
+    if (!place) throw new Error('ZIP not found');
+    const stateAbbr = place['state abbreviation'] || j['state abbreviation'] || '';
+    const placeName = place['place name'] || j['place name'] || '';
+    return {
+      lat: Number(place.latitude),
+      lon: Number(place.longitude),
+      name: stateAbbr ? `${placeName}, ${stateAbbr}` : placeName
+    };
   }
 
   async function fetchWeather(lat, lon) {
