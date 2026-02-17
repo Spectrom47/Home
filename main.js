@@ -15,6 +15,8 @@ document.addEventListener('DOMContentLoaded', () => {
     likeBtn.setAttribute('aria-pressed', String(liked));
   }
 
+  function escapeHtml(s) { return String(s).replace(/[&<>\"']/g, m => ({'&':'&amp;','<':'&lt;','>':'&gt;','\"':'&quot;',"'":"&#39;"}[m])); }
+
   likeBtn.addEventListener('click', () => {
     let cnt = parseInt(localStorage.getItem(LIKES_KEY), 10) || 0;
     const liked = localStorage.getItem(LIKED_KEY) === 'true';
@@ -51,6 +53,11 @@ document.addEventListener('DOMContentLoaded', () => {
       document.querySelectorAll('.widget').forEach(w => w.classList.add('hidden'));
       const el = document.getElementById('widget-' + activeTab.dataset.widget);
       if (el) el.classList.remove('hidden');
+
+      // if the worm tab is active, start the demo (deferred because startAutoDemo is declared later)
+      setTimeout(() => {
+        if (activeTab.dataset.widget === 'worm' && typeof startAutoDemo === 'function' && !running && !demoRunning) startAutoDemo();
+      }, 0);
     }
   }
   function closeModal() {
@@ -73,8 +80,13 @@ document.addEventListener('DOMContentLoaded', () => {
     const id = t.dataset.widget;
     widgets.forEach(w => w.classList.add('hidden'));
     document.getElementById('widget-' + id).classList.remove('hidden');
-    if (id === 'worm') { /* focus canvas for controls */ }
-    if (id !== 'worm') stopWorm();
+    if (id === 'worm') {
+      // start preview/demo when worm tab is selected (if not already running)
+      if (typeof startAutoDemo === 'function' && !running && !demoRunning) startAutoDemo();
+    } else {
+      if (typeof stopAutoDemo === 'function') stopAutoDemo();
+      stopWorm();
+    }
   }));
 
   // ensure initial active widget is visible on load
@@ -110,6 +122,9 @@ document.addEventListener('DOMContentLoaded', () => {
   const BILLS_KEY = 'spectrom_bills';
   const SALARY_KEY = 'spectrom_salary';
   let bills = JSON.parse(localStorage.getItem(BILLS_KEY) || '[]');
+  if (!Array.isArray(bills)) bills = [];
+  // migrate old-number-only format to objects {name,amount}
+  bills = bills.map(b => (typeof b === 'number' ? { name: 'Bill', amount: Number(b) } : (b && typeof b.amount !== 'undefined' ? { name: b.name || 'Bill', amount: Number(b.amount) } : { name: 'Bill', amount: 0 })));
   const billsList = document.getElementById('bills-list');
   const billsTotalEl = document.getElementById('bills-total');
   const monthlySalaryEl = document.getElementById('monthly-salary');
@@ -117,11 +132,15 @@ document.addEventListener('DOMContentLoaded', () => {
   const yearlySavingsEl = document.getElementById('yearly-savings');
 
   function renderBills() {
-    billsList.innerHTML = bills.map((amt, idx) => `
-      <div class="bill-item"><span>$${Number(amt).toFixed(2)}</span><button data-idx="${idx}" class="btn btn-ghost bill-remove">Remove</button></div>
-    `).join('') || '<div class="empty">No bills yet</div>';
+    billsList.innerHTML = bills.length ? bills.map((bill, idx) => `
+      <div class="bill-item">
+        <div style="flex:1"><strong>${escapeHtml(bill.name)}</strong></div>
+        <div style="min-width:96px; text-align:right;">$${Number(bill.amount).toFixed(2)}</div>
+        <button data-idx="${idx}" class="btn btn-ghost bill-remove">Remove</button>
+      </div>
+    `).join('') : '<div class="empty">No bills yet</div>';
     billsList.querySelectorAll('.bill-remove').forEach(btn => btn.addEventListener('click', () => { bills.splice(parseInt(btn.dataset.idx, 10), 1); saveBills(); renderBills(); }));
-    const total = bills.reduce((s, n) => s + Number(n), 0);
+    const total = bills.reduce((s, n) => s + Number(n.amount), 0);
     billsTotalEl.textContent = `$${total.toFixed(2)}`;
     const salary = Number(monthlySalaryEl.value || localStorage.getItem(SALARY_KEY) || 0);
     const remainder = salary - total;
@@ -131,16 +150,19 @@ document.addEventListener('DOMContentLoaded', () => {
   function saveBills() { localStorage.setItem(BILLS_KEY, JSON.stringify(bills)); }
 
   document.getElementById('add-bill').addEventListener('click', () => {
+    const nameInput = document.getElementById('bill-name');
+    const name = (nameInput && nameInput.value.trim()) || 'Bill';
     const v = Number(document.getElementById('bill-amount').value || 0);
     if (!v || v <= 0) return;
-    bills.push(v);
+    bills.push({ name, amount: v });
     saveBills();
     renderBills();
     document.getElementById('bill-amount').value = '';
+    if (nameInput) nameInput.value = '';
   });
 
   document.getElementById('sample-bills').addEventListener('click', () => {
-    bills = bills.concat([1200, 150, 60, 40]);
+    bills = bills.concat([{ name: 'Rent', amount: 1200 }, { name: 'Internet', amount: 150 }, { name: 'Electric', amount: 60 }, { name: 'Phone', amount: 40 }]);
     saveBills();
     renderBills();
   });
@@ -152,6 +174,44 @@ document.addEventListener('DOMContentLoaded', () => {
   monthlySalaryEl.value = localStorage.getItem(SALARY_KEY) || '';
   renderBills();
 
+  /* ---- Gallery widget ---- */
+  const GALLERY_KEY = 'spectrom_gallery';
+  let gallery = JSON.parse(localStorage.getItem(GALLERY_KEY) || '["images/ICOn.png"]');
+  const galleryGrid = document.getElementById('gallery-grid');
+  function renderGallery() {
+    galleryGrid.innerHTML = gallery.length ? gallery.map((src, idx) => `
+      <div class="gallery-item">
+        <img src="${src}" alt="image-${idx}" data-idx="${idx}" />
+        <button class="remove" data-idx="${idx}">×</button>
+      </div>
+    `).join('') : '<div class="empty">No images</div>';
+    galleryGrid.querySelectorAll('img').forEach(img => img.addEventListener('click', () => {
+      document.getElementById('gallery-lightbox-img').src = img.src;
+      document.getElementById('gallery-lightbox').classList.remove('hidden');
+    }));
+    galleryGrid.querySelectorAll('.remove').forEach(btn => btn.addEventListener('click', (e) => {
+      e.stopPropagation();
+      gallery.splice(parseInt(btn.dataset.idx, 10), 1);
+      localStorage.setItem(GALLERY_KEY, JSON.stringify(gallery));
+      renderGallery();
+    }));
+  }
+  document.getElementById('gallery-add-btn').addEventListener('click', () => {
+    let v = document.getElementById('gallery-input').value.trim();
+    if (!v) return;
+    if (!/^(https?:\/\/|\/)/.test(v)) v = 'images/' + v;
+    gallery.push(v);
+    localStorage.setItem(GALLERY_KEY, JSON.stringify(gallery));
+    renderGallery();
+    document.getElementById('gallery-input').value = '';
+  });
+  document.getElementById('gallery-reset-btn').addEventListener('click', () => { gallery = ['images/ICOn.png']; localStorage.setItem(GALLERY_KEY, JSON.stringify(gallery)); renderGallery(); });
+  document.getElementById('gallery-lightbox').addEventListener('click', () => { document.getElementById('gallery-lightbox').classList.add('hidden'); });
+  renderGallery();
+
+  monthlySalaryEl.value = localStorage.getItem(SALARY_KEY) || '';
+  renderBills();
+
   /* ---- Basic Worm (snake) game ---- */
   const canvas = document.getElementById('worm-canvas');
   const ctx = canvas.getContext('2d');
@@ -159,6 +219,7 @@ document.addEventListener('DOMContentLoaded', () => {
   const cols = Math.floor(canvas.width / tile);
   const rows = Math.floor(canvas.height / tile);
   let snake, dir, food, gameInterval, score, running;
+  let demoRunning = false, demoInterval = null, demoProgress = 0;
 
   function resetWorm() {
     snake = [{ x: Math.floor(cols / 2), y: Math.floor(rows / 2) }];
@@ -186,6 +247,7 @@ document.addEventListener('DOMContentLoaded', () => {
   function step() {
     const head = { x: snake[0].x + dir.x, y: snake[0].y + dir.y };
     if (head.x < 0 || head.x >= cols || head.y < 0 || head.y >= rows || snake.some(s => s.x === head.x && s.y === head.y)) {
+      if (demoRunning) { resetWorm(); return; }
       stopWorm();
       return;
     }
@@ -198,10 +260,55 @@ document.addEventListener('DOMContentLoaded', () => {
   function stopWorm() { running = false; clearInterval(gameInterval); }
   function resetAndStart() { resetWorm(); startWorm(); }
 
+  function updateDemoUI() {
+    const bar = document.getElementById('worm-demo-progress');
+    const pct = document.getElementById('worm-demo-percent');
+    const wrap = document.getElementById('worm-demo');
+    if (!bar || !pct || !wrap) return;
+    bar.style.width = `${Math.floor(demoProgress)}%`;
+    pct.textContent = `${Math.floor(demoProgress)}%`;
+    wrap.style.display = demoRunning ? 'flex' : 'none';
+  }
+
+  function startAutoDemo() {
+    if (demoRunning) return;
+    demoRunning = true;
+    demoProgress = 0;
+    updateDemoUI();
+    demoInterval = setInterval(() => {
+      const hx = snake[0].x, hy = snake[0].y;
+      const dx = Math.sign(food.x - hx), dy = Math.sign(food.y - hy);
+      const tryDirs = [];
+      if (dx !== 0) tryDirs.push({ x: dx, y: 0 });
+      if (dy !== 0) tryDirs.push({ x: 0, y: dy });
+      tryDirs.push({ x: 1, y: 0 }, { x: -1, y: 0 }, { x: 0, y: 1 }, { x: 0, y: -1 });
+      for (const nd of tryDirs) {
+        const nx = hx + nd.x, ny = hy + nd.y;
+        const collides = snake.some(s => s.x === nx && s.y === ny);
+        if (nx >= 0 && nx < cols && ny >= 0 && ny < rows && !collides) { dir = nd; break; }
+      }
+      step();
+      demoProgress += Math.random() * 6 + 2;
+      if (demoProgress > 100) demoProgress = 100;
+      updateDemoUI();
+      if (demoProgress >= 100) demoProgress = 0;
+    }, 120);
+  }
+
+  function stopAutoDemo() {
+    demoRunning = false;
+    clearInterval(demoInterval);
+    demoInterval = null;
+    demoProgress = 0;
+    updateDemoUI();
+  }
+
   resetWorm();
-  document.getElementById('worm-start').addEventListener('click', startWorm);
-  document.getElementById('worm-pause').addEventListener('click', () => { if (running) stopWorm(); else startWorm(); });
-  document.getElementById('worm-reset').addEventListener('click', () => { resetWorm(); stopWorm(); });
+  updateDemoUI();
+
+  document.getElementById('worm-start').addEventListener('click', () => { stopAutoDemo(); startWorm(); });
+  document.getElementById('worm-pause').addEventListener('click', () => { if (running) stopWorm(); else { stopAutoDemo(); startWorm(); } });
+  document.getElementById('worm-reset').addEventListener('click', () => { stopAutoDemo(); resetWorm(); stopWorm(); });
 
   document.addEventListener('keydown', (e) => {
     const keyMap = { ArrowUp: [0, -1], ArrowDown: [0, 1], ArrowLeft: [-1, 0], ArrowRight: [1, 0], w: [0, -1], s: [0, 1], a: [-1, 0], d: [1, 0] };
@@ -214,7 +321,7 @@ document.addEventListener('DOMContentLoaded', () => {
     }
   });
 
-  /* pause worm when modal closes */
-  const observer = new MutationObserver(() => { if (modal.classList.contains('hidden')) stopWorm(); });
+  // pause/cleanup when modal closes
+  const observer = new MutationObserver(() => { if (modal.classList.contains('hidden')) { stopWorm(); stopAutoDemo(); } });
   observer.observe(modal, { attributes: true, attributeFilter: ['class'] });
 });

@@ -41,6 +41,7 @@
       <button class="widget-tab active" data-widget="calculator">Calculator</button>
       <button class="widget-tab" data-widget="bills">Bills & Net</button>
       <button class="widget-tab" data-widget="worm">Worm Game</button>
+      <button class="widget-tab" data-widget="gallery">Gallery</button>
     </div>
 
     <div class="widgets-content">
@@ -63,10 +64,11 @@
         <div class="bills-controls">
           <div id="bills-list"></div>
           <div class="bills-add">
+            <input id="bill-name" type="text" placeholder="Bill name (e.g. Rent)" />
             <input id="bill-amount" type="number" placeholder="Bill amount" />
             <button id="add-bill" class="btn">Add Bill</button>
             <button id="sample-bills" class="btn btn-ghost">Add Sample</button>
-          </div>
+          </div> 
           <div class="bills-summary">
             <div>Total bills: <strong id="bills-total">$0.00</strong></div>
             <label>Monthly net salary:
@@ -83,7 +85,14 @@
       </section>
 
       <section id="widget-worm" class="widget hidden">
-        <canvas id="worm-canvas" width="360" height="360"></canvas>
+        <div class="worm-canvas-wrap">
+          <canvas id="worm-canvas" width="360" height="360"></canvas>
+          <div class="worm-demo" id="worm-demo" aria-hidden="true">
+            <div class="demo-label">Preview</div>
+            <div class="demo-bar" aria-hidden="true"><div id="worm-demo-progress" class="demo-progress" style="width:0%"></div></div>
+            <div id="worm-demo-percent" class="demo-percent">0%</div>
+          </div>
+        </div>
         <div class="worm-controls">
           <div>Score: <span id="worm-score">0</span></div>
           <div class="worm-buttons">
@@ -92,6 +101,19 @@
             <button id="worm-reset" class="btn btn-ghost">Reset</button>
           </div>
         </div>
+      </section>
+
+      <section id="widget-gallery" class="widget hidden">
+        <div class="gallery-controls">
+          <div class="gallery-grid" id="gallery-grid"></div>
+          <div class="gallery-add">
+            <input id="gallery-input" placeholder="image filename or URL (e.g. ICOn.png)" />
+            <button id="gallery-add-btn" class="btn">Add Image</button>
+            <button id="gallery-reset-btn" class="btn btn-ghost">Reset to defaults</button>
+          </div>
+          <div class="gallery-hint"><small>Click a thumbnail to preview. Relative filenames are resolved from /images/</small></div>
+        </div>
+        <div id="gallery-lightbox" class="gallery-lightbox hidden" role="dialog" aria-hidden="true"><img id="gallery-lightbox-img" alt="preview"/></div>
       </section>
     </div>
 

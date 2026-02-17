@@ -466,12 +466,31 @@ body::before {
 
 /* Worm game */
 #worm-canvas { background: #050518; border-radius:8px; display:block; margin: 0 auto; border: 1px solid rgba(255,255,255,0.03); }
+.worm-canvas-wrap { position: relative; display: inline-block; }
+.worm-demo { position: absolute; right: 8px; top: 8px; background: rgba(2,6,23,0.6); padding:6px 8px; border-radius:8px; display:flex; align-items:center; gap:8px; border:1px solid rgba(255,255,255,0.04); color:#e2e8f0; font-weight:700; font-size:0.85rem; backdrop-filter: blur(4px); }
+.demo-bar { width:90px; height:8px; background: rgba(255,255,255,0.05); border-radius:6px; overflow:hidden; }
+.demo-progress { height:100%; background:linear-gradient(90deg,#a855f7,#60a5fa); width:0%; transition: width 120ms linear; }
+.demo-percent { min-width:36px; text-align:right; font-weight:700; color:#a7f3d0; }
 .worm-controls { display:flex; justify-content:space-between; align-items:center; margin-top:8px; }
 .worm-buttons { display:flex; gap:8px; }
 
 /* Small button utility */
 .btn { padding:8px 12px; border-radius:10px; background: linear-gradient(135deg,#a855f7,#60a5fa); color:white; border: none; cursor:pointer; font-weight:700; }
 .btn-ghost { background: transparent; border:1px solid rgba(255,255,255,0.06); color:#cbd5e1; }
+
+/* Gallery */
+.gallery-controls { display:flex; gap:12px; align-items:flex-start; flex-wrap:wrap; margin-top:10px; }
+.gallery-grid { display:grid; grid-template-columns: repeat(auto-fill, minmax(100px, 1fr)); gap:10px; width:100%; max-width:640px; }
+.gallery-item { position:relative; border-radius:8px; overflow:hidden; background:rgba(255,255,255,0.02); border:1px solid rgba(255,255,255,0.03); }
+.gallery-item img { width:100%; height:100%; object-fit:cover; display:block; }
+.gallery-item .remove { position:absolute; top:6px; right:6px; background:rgba(0,0,0,0.5); color:#fff; border:none; padding:4px 6px; border-radius:6px; cursor:pointer; font-weight:700; font-size:0.75rem; }
+
+/* Lightbox */
+.gallery-lightbox { position:fixed; inset:0; display:flex; align-items:center; justify-content:center; background:rgba(2,6,23,0.85); z-index:1200; }
+.gallery-lightbox.hidden { display:none; }
+.gallery-lightbox img { max-width:92%; max-height:92%; border-radius:10px; box-shadow:0 10px 40px rgba(0,0,0,0.6); }
+
+.gallery-add input { padding:8px; border-radius:8px; border:1px solid rgba(255,255,255,0.03); width:220px; background:transparent; color:#fff; }
 
 .widgets-footer { text-align:center; margin-top:14px; color:#9ca3af; }
 
