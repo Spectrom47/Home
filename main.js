@@ -214,22 +214,23 @@ document.addEventListener('DOMContentLoaded', () => {
       .catch(() => false);
   }
 
-  function initGallery() {
+  async function initGallery() {
+    // Prefer the repo manifest (if present) so the gallery reflects all images in /images
+    const manifestFound = await loadGalleryFromManifest();
+    if (manifestFound) return;
+
+    // fall back to localStorage (user-added entries)
     const stored = JSON.parse(localStorage.getItem(GALLERY_KEY) || 'null');
     if (stored && stored.length) {
       gallery = stored.slice();
       renderGallery();
-      // update from manifest in background if available
-      loadGalleryFromManifest().then(found => { if (found) { /* manifest overrides stored */ } });
-    } else {
-      loadGalleryFromManifest().then(found => {
-        if (!found) {
-          gallery = ['images/ICOn.png'];
-          localStorage.setItem(GALLERY_KEY, JSON.stringify(gallery));
-          renderGallery();
-        }
-      });
+      return;
     }
+
+    // final fallback: bundled default
+    gallery = ['images/ICOn.png'];
+    localStorage.setItem(GALLERY_KEY, JSON.stringify(gallery));
+    renderGallery();
   }
 
   document.getElementById('gallery-add-btn').addEventListener('click', () => {
