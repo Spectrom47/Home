@@ -20,8 +20,103 @@
         <a href="https://www.roblox.com/communities/35685387/Soulspire-Community#!/about" target="_blank">Roblox Community</a>
     </div>
 
+    <!-- Interactive widget area: Like, Calculator, Worm game, Bills & Net-worth -->
+    <div class="widgets">
+        <h3>Interactive Widgets</h3>
+        <div class="widget-grid">
+
+            <!-- Like widget -->
+            <div class="widget widget-like">
+                <div class="like-top">
+                    <strong>Like this page</strong>
+                    <div id="like-count" class="like-count">128</div>
+                </div>
+
+                <button id="like-btn" class="like-btn" aria-pressed="false" title="Like">
+                    <svg width="36" height="36" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <path d="M12 21s-7-4.35-9-6.5C-1 10.5 3.6 4 8.5 6.5 11 8 12 11 12 11s1-3 3.5-4.5C20.4 4 25 10.5 21 14.5 19 16.65 12 21 12 21z" stroke="currentColor" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round"/>
+                    </svg>
+                </button>
+                <p class="widget-note">Likes persist locally (stored in your browser).</p>
+            </div>
+
+            <!-- Calculator widget -->
+            <div class="widget widget-calculator">
+                <strong>Calculator</strong>
+                <div id="calc-display" class="calc-display">0</div>
+                <div class="calc-keys">
+                    <button class="calc-key" data-value="7">7</button>
+                    <button class="calc-key" data-value="8">8</button>
+                    <button class="calc-key" data-value="9">9</button>
+                    <button class="calc-key operator" data-value="/">÷</button>
+
+                    <button class="calc-key" data-value="4">4</button>
+                    <button class="calc-key" data-value="5">5</button>
+                    <button class="calc-key" data-value="6">6</button>
+                    <button class="calc-key operator" data-value="*">×</button>
+
+                    <button class="calc-key" data-value="1">1</button>
+                    <button class="calc-key" data-value="2">2</button>
+                    <button class="calc-key" data-value="3">3</button>
+                    <button class="calc-key operator" data-value="-">−</button>
+
+                    <button class="calc-key" data-value="0">0</button>
+                    <button class="calc-key" data-value=".">.</button>
+                    <button class="calc-key" data-value="DEL">DEL</button>
+                    <button class="calc-key operator" data-value="+">+</button>
+
+                    <button class="calc-key control" data-value="AC">AC</button>
+                    <button class="calc-key control equals" data-value="=">=</button>
+                </div>
+            </div>
+
+            <!-- Worm (Snake) widget -->
+            <div class="widget widget-worm">
+                <strong>Worm (Basic)</strong>
+                <canvas id="worm-canvas" width="300" height="300" aria-label="Worm game"></canvas>
+                <div class="worm-controls">
+                    <div class="worm-buttons">
+                        <button id="worm-start" class="small-btn">Start</button>
+                        <button id="worm-pause" class="small-btn">Pause</button>
+                        <button id="worm-reset" class="small-btn">Reset</button>
+                    </div>
+                    <div id="worm-score" class="worm-score">Score: 0</div>
+                </div>
+                <p class="widget-note">Use arrow keys or WASD to move.</p>
+            </div>
+
+            <!-- Bills & Net Worth widget -->
+            <div class="widget widget-bills">
+                <strong>Bills & Net-worth</strong>
+
+                <div class="bills-form">
+                    <input id="bill-name" placeholder="Bill name (e.g. Rent)">
+                    <input id="bill-amount" type="number" min="0" step="0.01" placeholder="Amount">
+                    <button id="add-bill" class="small-btn">Add</button>
+                </div>
+
+                <ul id="bills-list" class="bills-list"></ul>
+
+                <div class="bills-summary">
+                    <label class="salary-label">Monthly net salary: <input id="monthly-salary" type="number" min="0" step="0.01" placeholder="0"></label>
+                    <div>Total bills: $<span id="total-bills">0.00</span></div>
+                    <div>Disposable / mo: $<span id="disposable">0.00</span></div>
+                    <div>Disposable / yr: $<span id="disposable-year">0.00</span></div>
+                </div>
+
+                <div class="bills-actions">
+                    <button id="clear-bills" class="small-btn">Clear</button>
+                    <button id="sample-bills" class="small-btn">Add sample</button>
+                </div>
+                <p class="widget-note">Add any number of bills — totals update live.</p>
+            </div>
+
+        </div>
+    </div>
+
     <a class="nav-button" href="lore.html">Enter The Lore →</a>
 </div>
 
+<script src="main.js" defer></script>
 </body>
 </html>

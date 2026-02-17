@@ -332,6 +332,139 @@ h3 {
     }
 }
 
+/* Widgets */
+.widgets {
+    margin: 2rem auto;
+    max-width: 1100px;
+    text-align: left;
+}
+
+.widget-grid {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 1.25rem;
+    align-items: start;
+}
+
+.widget {
+    background: rgba(255, 255, 255, 0.03);
+    padding: 1rem;
+    border-radius: 14px;
+    border: 1px solid rgba(168, 85, 247, 0.08);
+    box-shadow: 0 8px 30px rgba(2, 6, 23, 0.35);
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+    min-height: 150px;
+}
+
+.widget strong {
+    color: #c084fc;
+    font-size: 1rem;
+}
+
+.widget-note {
+    font-size: 0.8rem;
+    color: rgba(255,255,255,0.6);
+    margin: 0.25rem 0 0 0;
+}
+
+/* Like widget */
+.widget-like {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1rem;
+}
+
+.like-top {
+    display: flex;
+    flex-direction: column;
+    gap: 0.25rem;
+}
+
+.like-count {
+    font-weight: 700;
+    color: #ffd6e0;
+}
+
+.like-btn {
+    background: transparent;
+    border: 1px solid rgba(255,255,255,0.06);
+    padding: 10px;
+    border-radius: 12px;
+    color: #c084fc;
+    cursor: pointer;
+    transition: transform 180ms ease, box-shadow 180ms ease, color 180ms ease;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.like-btn.liked {
+    background: linear-gradient(135deg, #ff6b81, #ffb199);
+    color: white;
+    transform: scale(1.06);
+    box-shadow: 0 8px 30px rgba(255,107,129,0.18);
+}
+
+/* Calculator */
+.calc-display {
+    width: 100%;
+    background: rgba(0,0,0,0.25);
+    padding: 10px 12px;
+    border-radius: 8px;
+    text-align: right;
+    font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, 'Roboto Mono', monospace;
+    font-size: 1.1rem;
+    color: #e6eef8;
+}
+
+.calc-keys {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 8px;
+    margin-top: 8px;
+}
+
+.calc-key {
+    padding: 10px;
+    border-radius: 8px;
+    background: rgba(255,255,255,0.02);
+    border: 1px solid rgba(255,255,255,0.03);
+    color: #dbeafe;
+    cursor: pointer;
+    font-weight: 600;
+    transition: transform 120ms ease, background 120ms ease;
+}
+
+.calc-key.operator { background: linear-gradient(135deg, rgba(96,165,250,0.12), rgba(192,132,252,0.08)); }
+.calc-key.control { grid-column: span 2; background: rgba(168,85,247,0.06); }
+.calc-key.equals { background: linear-gradient(135deg,#a855f7,#60a5fa); color: white; }
+.calc-key:active { transform: translateY(1px) scale(0.995); }
+
+/* Worm (snake) */
+#worm-canvas { display: block; width: 100%; height: auto; border-radius: 8px; background: #07071a; border: 1px solid rgba(255,255,255,0.03); }
+.worm-controls { display: flex; justify-content: space-between; align-items: center; gap: 1rem; width: 100%; }
+.worm-score { color: #93c5fd; font-weight: 700; }
+.small-btn { padding: 6px 10px; border-radius: 8px; background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.04); color: #e6eef8; cursor: pointer; }
+.small-btn:active { transform: translateY(1px); }
+
+/* Bills */
+.bills-form { display:flex; gap:8px; width: 100%; }
+.bills-form input { flex: 1; padding: 8px 10px; background: rgba(255,255,255,0.02); border-radius: 8px; border: 1px solid rgba(255,255,255,0.03); color: white; }
+.bills-list { list-style: none; padding: 0; margin: 8px 0; width: 100%; max-height: 140px; overflow: auto; }
+.bills-list li { display:flex; justify-content: space-between; gap:8px; padding: 6px 8px; border-radius: 8px; background: rgba(255,255,255,0.01); border: 1px solid rgba(255,255,255,0.02); margin-bottom: 6px; }
+.bills-list li .bill-remove { background: transparent; border: none; color: #fca5a5; cursor: pointer; }
+.bills-summary { display:flex; flex-direction: column; gap:6px; font-size: 0.95rem; }
+.bills-actions { display:flex; gap:8px; margin-top: 6px; }
+.salary-label input { width: 160px; margin-left: 6px; }
+
+/* Responsive */
+@media (max-width: 900px) {
+    .widget-grid { grid-template-columns: 1fr; }
+}
+
 /* Subtle texture overlay */
 body::before {
     content: '';
