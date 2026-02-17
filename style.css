@@ -404,9 +404,12 @@ body::before {
     inset: 0;
     background: linear-gradient(180deg, rgba(2,6,23,0.6), rgba(2,6,23,0.75));
     backdrop-filter: blur(6px);
+    z-index: 1; /* ensure overlay sits under the panel */
 }
 .widgets-panel {
     position: relative;
+    z-index: 2; /* ensure panel is above the overlay */
+    color: #e5e7eb;
     width: min(920px, 96%);
     max-height: 92vh;
     overflow: auto;
@@ -416,6 +419,9 @@ body::before {
     border: 1px solid rgba(168,85,247,0.14);
     box-shadow: 0 10px 50px rgba(2,6,23,0.6);
 }
+.widgets-content { color: #e5e7eb; }
+.widget { display: block; }
+.widget.active { display: block; }
 .widgets-close {
     position: absolute;
     right: 12px;

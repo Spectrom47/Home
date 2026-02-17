@@ -42,6 +42,16 @@ document.addEventListener('DOMContentLoaded', () => {
     modal.classList.remove('hidden');
     modal.setAttribute('aria-hidden', 'false');
     document.body.style.overflow = 'hidden';
+
+    // Defensive: ensure an active tab/widget is visible when modal opens
+    const activeTab = document.querySelector('.widget-tab.active') || document.querySelector('.widget-tab');
+    if (activeTab) {
+      document.querySelectorAll('.widget-tab').forEach(t => t.classList.remove('active'));
+      activeTab.classList.add('active');
+      document.querySelectorAll('.widget').forEach(w => w.classList.add('hidden'));
+      const el = document.getElementById('widget-' + activeTab.dataset.widget);
+      if (el) el.classList.remove('hidden');
+    }
   }
   function closeModal() {
     modal.classList.add('hidden');
@@ -66,6 +76,13 @@ document.addEventListener('DOMContentLoaded', () => {
     if (id === 'worm') { /* focus canvas for controls */ }
     if (id !== 'worm') stopWorm();
   }));
+
+  // ensure initial active widget is visible on load
+  (function ensureInitialWidget(){
+    const initial = document.querySelector('.widget-tab.active') || document.querySelector('.widget-tab');
+    if (initial) initial.click();
+    else console.warn('Widgets: no tabs found');
+  })();
 
   /* ---- Simple calculator ---- */
   const display = document.getElementById('calc-display');
