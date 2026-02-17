@@ -8,7 +8,17 @@ if (!fs.existsSync(imagesDir)) {
   process.exit(1);
 }
 
-const files = fs.readdirSync(imagesDir).filter(f => /\.(png|jpe?g|gif|webp|svg)$/i.test(f));
-const arr = files.map(f => path.posix.join('images', f));
-fs.writeFileSync(outFile, JSON.stringify(arr, null, 2) + '\n');
-console.log('Wrote', outFile, 'with', arr.length, 'entries');
+function walk(dir) {
+  const entries = [];
+  for (const name of fs.readdirSync(dir)) {
+    const full = path.join(dir, name);
+    const stat = fs.statSync(full);
+    if (stat.isDirectory()) entries.push(...walk(full));
+    else if (/\.(png|jpe?g|gif|webp|svg)$/i.test(name)) entries.push(full);
+  }
+  return entries;
+}
+
+const files = walk(imagesDir).map(f => path.posix.join('images', path.relative(imagesDir, f).split(path.sep).join('/')));
+fs.writeFileSync(outFile, JSON.stringify(files, null, 2) + '\n');
+console.log('Wrote', outFile, 'with', files.length, 'entries');

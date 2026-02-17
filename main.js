@@ -246,6 +246,19 @@ document.addEventListener('DOMContentLoaded', () => {
   document.getElementById('gallery-reset-btn').addEventListener('click', () => { gallery = ['images/ICOn.png']; localStorage.setItem(GALLERY_KEY, JSON.stringify(gallery)); renderGallery(); });
   document.getElementById('gallery-lightbox').addEventListener('click', () => { document.getElementById('gallery-lightbox').classList.add('hidden'); });
 
+  // Refresh button: re-load manifest from repo and update UI
+  const galleryRefreshBtn = document.getElementById('gallery-refresh-btn');
+  if (galleryRefreshBtn) {
+    galleryRefreshBtn.addEventListener('click', async () => {
+      galleryRefreshBtn.disabled = true;
+      const prev = galleryRefreshBtn.textContent;
+      galleryRefreshBtn.textContent = 'Refreshing...';
+      const ok = await loadGalleryFromManifest();
+      galleryRefreshBtn.textContent = ok ? 'Updated' : 'No manifest';
+      setTimeout(() => { galleryRefreshBtn.textContent = prev; galleryRefreshBtn.disabled = false; }, 900);
+    });
+  }
+
   // initialize (manifest preferred)
   initGallery();
 

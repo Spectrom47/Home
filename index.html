@@ -110,8 +110,11 @@
           <div class="gallery-grid" id="gallery-grid"></div>
           <div class="gallery-add">
             <input id="gallery-input" placeholder="image filename or URL (e.g. ICOn.png)" />
-            <button id="gallery-add-btn" class="btn">Add Image</button>
-            <button id="gallery-reset-btn" class="btn btn-ghost">Reset to defaults</button>
+            <div style="display:flex;gap:8px;flex-wrap:wrap;">
+              <button id="gallery-add-btn" class="btn">Add Image</button>
+              <button id="gallery-refresh-btn" class="btn btn-ghost">Refresh from repo</button>
+              <button id="gallery-reset-btn" class="btn btn-ghost">Reset to defaults</button>
+            </div>
           </div>
           <div class="gallery-hint"><small>Click a thumbnail to preview. Relative filenames are resolved from /images/</small></div>
         </div>
