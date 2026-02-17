@@ -264,12 +264,23 @@ document.addEventListener('DOMContentLoaded', () => {
 
   /* ---- Weather widget ---- */
   const WEATHER_ZIP_KEY = 'weather_last_zip';
+  const WEATHER_STATE_KEY = 'weather_last_state';
   const WEATHER_CACHE_KEY = 'weather_last_data';
   const zipInput = document.getElementById('weather-zip');
+  const stateSelect = document.getElementById('weather-state');
   const weatherGetBtn = document.getElementById('weather-get');
   const weatherUseLastBtn = document.getElementById('weather-use-last');
   const weatherOutput = document.getElementById('weather-output');
   const weatherForecastEl = document.getElementById('weather-forecast');
+
+  // US states + DC (abbr, name)
+  const US_STATES = [
+    ['','(Select state)'],['AL','Alabama'],['AK','Alaska'],['AZ','Arizona'],['AR','Arkansas'],['CA','California'],['CO','Colorado'],['CT','Connecticut'],['DE','Delaware'],['DC','District of Columbia'],['FL','Florida'],['GA','Georgia'],['HI','Hawaii'],['ID','Idaho'],['IL','Illinois'],['IN','Indiana'],['IA','Iowa'],['KS','Kansas'],['KY','Kentucky'],['LA','Louisiana'],['ME','Maine'],['MD','Maryland'],['MA','Massachusetts'],['MI','Michigan'],['MN','Minnesota'],['MS','Mississippi'],['MO','Missouri'],['MT','Montana'],['NE','Nebraska'],['NV','Nevada'],['NH','New Hampshire'],['NJ','New Jersey'],['NM','New Mexico'],['NY','New York'],['NC','North Carolina'],['ND','North Dakota'],['OH','Ohio'],['OK','Oklahoma'],['OR','Oregon'],['PA','Pennsylvania'],['RI','Rhode Island'],['SC','South Carolina'],['SD','South Dakota'],['TN','Tennessee'],['TX','Texas'],['UT','Utah'],['VT','Vermont'],['VA','Virginia'],['WA','Washington'],['WV','West Virginia'],['WI','Wisconsin'],['WY','Wyoming']
+  ];
+  // populate state selector
+  if (stateSelect) {
+    stateSelect.innerHTML = US_STATES.map(s => `<option value="${s[0]}">${s[1]}</option>`).join('');
+  }
 
   const weatherCodeMap = {
     0: 'Clear', 1: 'Mainly clear', 2: 'Partly cloudy', 3: 'Overcast',
@@ -293,12 +304,13 @@ document.addEventListener('DOMContentLoaded', () => {
     const j = await r.json();
     const place = j.places && j.places[0];
     if (!place) throw new Error('ZIP not found');
-    const stateAbbr = place['state abbreviation'] || j['state abbreviation'] || '';
+    const stateAbbr = (place['state abbreviation'] || j['state abbreviation'] || '').toUpperCase();
     const placeName = place['place name'] || j['place name'] || '';
     return {
       lat: Number(place.latitude),
       lon: Number(place.longitude),
-      name: stateAbbr ? `${placeName}, ${stateAbbr}` : placeName
+      name: stateAbbr ? `${placeName}, ${stateAbbr}` : placeName,
+      state: stateAbbr
     };
   }
 
@@ -335,8 +347,22 @@ document.addEventListener('DOMContentLoaded', () => {
     weatherForecastEl.innerHTML = '';
     try {
       const geo = await geoForZip(zip);
+
+      // if user selected a state, validate that the ZIP belongs to it
+      const selectedState = (stateSelect && (stateSelect.value || '')).toUpperCase();
+      if (selectedState) {
+        const geoState = (geo.state || '').toUpperCase();
+        if (geoState && geoState !== selectedState) {
+          weatherOutput.innerHTML = `<div class="empty">ZIP ${escapeHtml(zip)} does not match selected state (${escapeHtml(selectedState)}). Returned: ${escapeHtml(geoState)} — please verify.</div>`;
+          return;
+        }
+      }
+
       const data = await fetchWeather(geo.lat, geo.lon);
       localStorage.setItem(WEATHER_ZIP_KEY, zip);
+      // persist state preference: prefer explicit user selection, otherwise store geo result
+      if (stateSelect && stateSelect.value) localStorage.setItem(WEATHER_STATE_KEY, stateSelect.value);
+      else if (geo.state) localStorage.setItem(WEATHER_STATE_KEY, geo.state);
       localStorage.setItem(WEATHER_CACHE_KEY, JSON.stringify({ ts: Date.now(), zip, placeName: geo.name, data }));
       renderWeather(data, geo.name);
     } catch (err) {
@@ -344,16 +370,43 @@ document.addEventListener('DOMContentLoaded', () => {
     }
   }
 
-  weatherGetBtn.addEventListener('click', () => { const z = (zipInput.value||'').trim(); if (!z) return; getWeatherForZip(z); });
+  weatherGetBtn.addEventListener('click', () => {
+    const z = (zipInput.value||'').trim();
+    if (!z) return;
+    getWeatherForZip(z);
+  });
   zipInput.addEventListener('keydown', (e) => { if (e.key === 'Enter') weatherGetBtn.click(); });
-  weatherUseLastBtn.addEventListener('click', () => { const last = localStorage.getItem(WEATHER_ZIP_KEY); if (last) { zipInput.value = last; weatherGetBtn.click(); } });
 
-  // hydrate from cache if available
+  if (stateSelect) {
+    // persist user preference when they change the selector
+    stateSelect.addEventListener('change', () => { localStorage.setItem(WEATHER_STATE_KEY, stateSelect.value || ''); });
+  }
+
+  weatherUseLastBtn.addEventListener('click', () => {
+    const last = localStorage.getItem(WEATHER_ZIP_KEY);
+    const lastState = localStorage.getItem(WEATHER_STATE_KEY);
+    if (last) {
+      zipInput.value = last;
+      if (stateSelect && lastState) stateSelect.value = lastState;
+      weatherGetBtn.click();
+    }
+  });
+
+  // hydrate from cache if available, and restore last-selected state
   (function hydrateWeather() {
     const last = localStorage.getItem(WEATHER_ZIP_KEY) || '';
     zipInput.value = last;
+    const lastState = localStorage.getItem(WEATHER_STATE_KEY) || '';
+    if (stateSelect && lastState) stateSelect.value = lastState;
     const cached = JSON.parse(localStorage.getItem(WEATHER_CACHE_KEY) || 'null');
-    if (cached && cached.data) renderWeather(cached.data, cached.placeName || cached.zip);
+    if (cached && cached.data) {
+      renderWeather(cached.data, cached.placeName || cached.zip);
+      // if selector is empty try to infer state from cached placeName (e.g. "City, ST")
+      if (stateSelect && !lastState && typeof cached.placeName === 'string') {
+        const m = cached.placeName.match(/,\s*([A-Z]{2})$/);
+        if (m) stateSelect.value = m[1];
+      }
+    }
   })();
 
   monthlySalaryEl.value = localStorage.getItem(SALARY_KEY) || '';

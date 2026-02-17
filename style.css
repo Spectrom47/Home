@@ -499,7 +499,8 @@ body::before {
 
 /* Weather widget */
 .weather-controls { display:flex; gap:12px; align-items:center; justify-content:center; flex-wrap:wrap; margin-top:8px; }
-.weather-controls input { padding:8px 10px; border-radius:8px; border:1px solid rgba(255,255,255,0.06); background:rgba(255,255,255,0.02); color:#fff; min-width:120px; }
+.weather-controls input, .weather-controls select { padding:8px 10px; border-radius:8px; border:1px solid rgba(255,255,255,0.06); background:rgba(255,255,255,0.02); color:#fff; min-width:120px; }
+.weather-controls select { min-width:160px; }
 .weather-actions { display:flex; gap:8px; align-items:center; }
 .weather-output { margin-top:12px; padding:12px; border-radius:8px; background:rgba(255,255,255,0.02); border:1px solid rgba(255,255,255,0.03); min-height:44px; }
 .weather-summary { display:flex; gap:12px; align-items:center; justify-content:space-between; }
