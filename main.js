@@ -174,10 +174,11 @@ document.addEventListener('DOMContentLoaded', () => {
   monthlySalaryEl.value = localStorage.getItem(SALARY_KEY) || '';
   renderBills();
 
-  /* ---- Gallery widget ---- */
+  /* ---- Gallery widget (auto-load from images/manifest.json) ---- */
   const GALLERY_KEY = 'spectrom_gallery';
-  let gallery = JSON.parse(localStorage.getItem(GALLERY_KEY) || '["images/ICOn.png"]');
+  let gallery = [];
   const galleryGrid = document.getElementById('gallery-grid');
+
   function renderGallery() {
     galleryGrid.innerHTML = gallery.length ? gallery.map((src, idx) => `
       <div class="gallery-item">
@@ -185,10 +186,12 @@ document.addEventListener('DOMContentLoaded', () => {
         <button class="remove" data-idx="${idx}">×</button>
       </div>
     `).join('') : '<div class="empty">No images</div>';
+
     galleryGrid.querySelectorAll('img').forEach(img => img.addEventListener('click', () => {
       document.getElementById('gallery-lightbox-img').src = img.src;
       document.getElementById('gallery-lightbox').classList.remove('hidden');
     }));
+
     galleryGrid.querySelectorAll('.remove').forEach(btn => btn.addEventListener('click', (e) => {
       e.stopPropagation();
       gallery.splice(parseInt(btn.dataset.idx, 10), 1);
@@ -196,6 +199,39 @@ document.addEventListener('DOMContentLoaded', () => {
       renderGallery();
     }));
   }
+
+  // try to load a manifest from /images/manifest.json; fall back to localStorage or the bundled default
+  function loadGalleryFromManifest() {
+    return fetch('images/manifest.json', { cache: 'no-cache' })
+      .then(r => { if (!r.ok) throw new Error('no-manifest'); return r.json(); })
+      .then(list => {
+        if (!Array.isArray(list)) throw new Error('bad-manifest');
+        gallery = list.map(s => (s.startsWith('/') ? s.slice(1) : s));
+        localStorage.setItem(GALLERY_KEY, JSON.stringify(gallery));
+        renderGallery();
+        return true;
+      })
+      .catch(() => false);
+  }
+
+  function initGallery() {
+    const stored = JSON.parse(localStorage.getItem(GALLERY_KEY) || 'null');
+    if (stored && stored.length) {
+      gallery = stored.slice();
+      renderGallery();
+      // update from manifest in background if available
+      loadGalleryFromManifest().then(found => { if (found) { /* manifest overrides stored */ } });
+    } else {
+      loadGalleryFromManifest().then(found => {
+        if (!found) {
+          gallery = ['images/ICOn.png'];
+          localStorage.setItem(GALLERY_KEY, JSON.stringify(gallery));
+          renderGallery();
+        }
+      });
+    }
+  }
+
   document.getElementById('gallery-add-btn').addEventListener('click', () => {
     let v = document.getElementById('gallery-input').value.trim();
     if (!v) return;
@@ -205,9 +241,12 @@ document.addEventListener('DOMContentLoaded', () => {
     renderGallery();
     document.getElementById('gallery-input').value = '';
   });
+
   document.getElementById('gallery-reset-btn').addEventListener('click', () => { gallery = ['images/ICOn.png']; localStorage.setItem(GALLERY_KEY, JSON.stringify(gallery)); renderGallery(); });
   document.getElementById('gallery-lightbox').addEventListener('click', () => { document.getElementById('gallery-lightbox').classList.add('hidden'); });
-  renderGallery();
+
+  // initialize (manifest preferred)
+  initGallery();
 
   monthlySalaryEl.value = localStorage.getItem(SALARY_KEY) || '';
   renderBills();
