@@ -346,17 +346,19 @@ h3 {
     align-items: start;
 }
 
-/* Floating launcher (button directory / FAB) */
+/* Floating launcher (button directory / FAB) — hidden by default (opened via main menu) */
 .widget-launcher {
+    display: none; /* widgets are hidden on first view per user request */
     position: fixed;
     right: 20px;
     bottom: 28px;
     z-index: 2200;
-    display: flex;
-    flex-direction: column;
-    align-items: flex-end;
-    gap: 8px;
 }
+
+/* Main menu buttons shown on initial load */
+.main-actions { display:flex; justify-content:center; gap:12px; margin: 1.5rem 0; }
+.action-row { display:flex; gap:12px; flex-wrap:wrap; justify-content:center; }
+.main-btn { min-width: 220px; padding: 0.9rem 1.6rem; border-radius: 50px; font-weight:700; letter-spacing:0.03em; }
 
 .fab {
     background: linear-gradient(135deg,#a855f7,#60a5fa);
@@ -399,6 +401,12 @@ h3 {
     text-align: left;
     font-weight: 600;
 }
+
+/* Utility to hide elements */
+.hidden { display: none !important; }
+
+.community-header { display:flex; justify-content:space-between; align-items:center; gap:8px; }
+
 
 /* Modal / layered panel */
 .widget-modal { position: fixed; inset: 0; display: flex; align-items: center; justify-content: center; z-index: 2300; }

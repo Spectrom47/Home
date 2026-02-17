@@ -11,6 +11,7 @@ document.addEventListener('DOMContentLoaded', () => {
   initWorm();
   initBills();
   initWidgetLauncher();
+  initMainMenu();
 });
 
 /* ---------- LIKE SYSTEM ---------- */
@@ -380,6 +381,32 @@ function initWidgetLauncher() {
     closeBtn.focus();
   }
 
+  function showDirectory() {
+    restoreIfPresent();
+    modalArea.innerHTML = '';
+    modal.classList.remove('hidden');
+    modal.setAttribute('aria-hidden','false');
+    titleEl.textContent = 'Widgets';
+    current = -1;
+    if (menu) {
+      const clone = menu.cloneNode(true);
+      clone.classList.add('modal-menu');
+      clone.querySelectorAll('.launcher-item').forEach(btn => {
+        btn.addEventListener('click', () => {
+          const nm = btn.dataset.widget;
+          openModal(nm);
+        });
+      });
+      modalArea.appendChild(clone);
+    }
+    document.body.classList.add('no-scroll');
+    closeBtn.focus();
+  }
+
+  // expose small API to other scripts (open directory or open specific widget)
+  window.openWidgetDirectory = showDirectory;
+  window.openWidgetModal = openModal;
+
   function closeModal() {
     if (current === -1) {
       modal.classList.add('hidden');
@@ -426,6 +453,41 @@ function initWidgetLauncher() {
     if (e.key === 'ArrowLeft') showNext(-1);
     if (e.key === 'ArrowRight') showNext(1);
   });
+}
+
+/* Main menu (two-button start) */
+function initMainMenu() {
+  const openCommunityBtn = document.getElementById('open-community');
+  const closeCommunityBtn = document.getElementById('close-community');
+  const mainActions = document.getElementById('main-actions');
+  const communityCard = document.getElementById('community-card');
+  const openWidgetsMainBtn = document.getElementById('open-widgets-main');
+
+  if (openCommunityBtn && mainActions && communityCard) {
+    openCommunityBtn.addEventListener('click', () => {
+      mainActions.classList.add('hidden');
+      communityCard.classList.remove('hidden');
+      communityCard.setAttribute('aria-hidden', 'false');
+      const firstLink = communityCard.querySelector('a');
+      if (firstLink) firstLink.focus();
+    });
+  }
+
+  if (closeCommunityBtn && mainActions && communityCard) {
+    closeCommunityBtn.addEventListener('click', () => {
+      communityCard.classList.add('hidden');
+      communityCard.setAttribute('aria-hidden', 'true');
+      mainActions.classList.remove('hidden');
+      openCommunityBtn.focus();
+    });
+  }
+
+  if (openWidgetsMainBtn) {
+    openWidgetsMainBtn.addEventListener('click', () => {
+      // open the widget directory modal (uses exposed API)
+      if (window.openWidgetDirectory) window.openWidgetDirectory();
+    });
+  }
 }
 
 /* ---------- Utilities ---------- */
