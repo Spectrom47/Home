@@ -10,6 +10,7 @@ document.addEventListener('DOMContentLoaded', () => {
   initCalculator();
   initWorm();
   initBills();
+  initWidgetLauncher();
 });
 
 /* ---------- LIKE SYSTEM ---------- */
@@ -317,6 +318,114 @@ function initBills() {
   });
 
   render();
+}
+
+/* Widget launcher (modal + FAB) */
+function initWidgetLauncher() {
+  const launcher = document.getElementById('widget-launcher');
+  const toggle = document.getElementById('launcher-toggle');
+  const menu = launcher && launcher.querySelector('.launcher-menu');
+  const modal = document.getElementById('widget-modal');
+  const backdrop = document.getElementById('widget-backdrop');
+  const panel = document.querySelector('.widget-modal-panel');
+  const titleEl = document.getElementById('widget-title');
+  const modalArea = document.getElementById('modal-widget-area');
+  const prevBtn = document.getElementById('widget-prev');
+  const nextBtn = document.getElementById('widget-next');
+  const closeBtn = document.getElementById('widget-close');
+
+  if (!launcher || !modal || !modalArea) return;
+
+  const order = ['like','calculator','worm','bills'];
+  let current = -1;
+  const registry = {};
+
+  order.forEach(name => {
+    const el = document.querySelector(`[data-widget="${name}"]`);
+    if (el) registry[name] = { el, parent: el.parentNode, nextSibling: el.nextSibling };
+  });
+
+  function openMenu() {
+    launcher.classList.toggle('open');
+    toggle.setAttribute('aria-expanded', String(launcher.classList.contains('open')));
+  }
+
+  function restoreIfPresent() {
+    const child = modalArea.firstElementChild;
+    if (child && child.dataset && child.dataset.widget) {
+      const n = child.dataset.widget;
+      const rec = registry[n];
+      if (rec && rec.parent) {
+        rec.parent.insertBefore(child, rec.nextSibling);
+        child.classList.remove('in-modal','active');
+      } else {
+        modalArea.removeChild(child);
+      }
+    }
+  }
+
+  function openModal(name) {
+    const rec = registry[name];
+    if (!rec) return;
+    restoreIfPresent();
+    modalArea.innerHTML = '';
+    modal.classList.remove('hidden');
+    modal.setAttribute('aria-hidden','false');
+    const widgetEl = rec.el;
+    widgetEl.classList.add('in-modal','active');
+    modalArea.appendChild(widgetEl);
+    titleEl.textContent = widgetEl.querySelector('strong')?.textContent || name;
+    current = order.indexOf(name);
+    document.body.classList.add('no-scroll');
+    closeBtn.focus();
+  }
+
+  function closeModal() {
+    if (current === -1) {
+      modal.classList.add('hidden');
+      modal.setAttribute('aria-hidden','true');
+      return;
+    }
+    const name = order[current];
+    const rec = registry[name];
+    if (rec && rec.parent) {
+      rec.parent.insertBefore(rec.el, rec.nextSibling);
+      rec.el.classList.remove('in-modal','active');
+    }
+    modal.classList.add('hidden');
+    modal.setAttribute('aria-hidden','true');
+    current = -1;
+    document.body.classList.remove('no-scroll');
+    toggle.focus();
+  }
+
+  function showNext(delta) {
+    if (current === -1) return;
+    current = (current + delta + order.length) % order.length;
+    openModal(order[current]);
+  }
+
+  // events
+  toggle.addEventListener('click', openMenu);
+  menu && menu.querySelectorAll('.launcher-item').forEach(btn => {
+    btn.addEventListener('click', () => {
+      openMenu();
+      const name = btn.dataset.widget;
+      openModal(name);
+    });
+  });
+
+  backdrop && backdrop.addEventListener('click', closeModal);
+  closeBtn && closeBtn.addEventListener('click', closeModal);
+  prevBtn && prevBtn.addEventListener('click', () => showNext(-1));
+  nextBtn && nextBtn.addEventListener('click', () => showNext(1));
+
+  window.addEventListener('keydown', (e) => {
+    if (modal.classList.contains('hidden')) return;
+    if (e.key === 'Escape') closeModal();
+    if (e.key === 'ArrowLeft') showNext(-1);
+    if (e.key === 'ArrowRight') showNext(1);
+  });
 }
 
 /* ---------- Utilities ---------- */
