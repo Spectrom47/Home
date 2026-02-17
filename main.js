@@ -212,16 +212,31 @@ document.addEventListener('DOMContentLoaded', () => {
   monthlySalaryEl.value = localStorage.getItem(SALARY_KEY) || '';
   renderBills();
 
-  /* ---- Basic Worm (snake) game ---- */
+  /* ---- Basic Worm (snake) game (responsive + touch) ---- */
   const canvas = document.getElementById('worm-canvas');
   const ctx = canvas.getContext('2d');
-  const tile = 20;
-  const cols = Math.floor(canvas.width / tile);
-  const rows = Math.floor(canvas.height / tile);
+  const tile = 20; // logical grid tile (CSS pixels)
+  let dpr = Math.max(1, window.devicePixelRatio || 1);
+  let tilePx = tile * dpr;
+  let cols = 0, rows = 0;
   let snake, dir, food, gameInterval, score, running;
   let demoRunning = false, demoInterval = null, demoProgress = 0;
 
+  function resizeCanvas() {
+    const wrap = canvas.parentElement || document.body;
+    const avail = Math.min(360, Math.max(120, wrap.clientWidth || window.innerWidth * 0.9));
+    canvas.style.width = avail + 'px';
+    canvas.style.height = avail + 'px';
+    dpr = Math.max(1, window.devicePixelRatio || 1);
+    canvas.width = Math.floor(avail * dpr);
+    canvas.height = Math.floor(avail * dpr);
+    tilePx = tile * dpr;
+    cols = Math.max(4, Math.floor(canvas.width / tilePx));
+    rows = Math.max(4, Math.floor(canvas.height / tilePx));
+  }
+
   function resetWorm() {
+    resizeCanvas();
     snake = [{ x: Math.floor(cols / 2), y: Math.floor(rows / 2) }];
     dir = { x: 1, y: 0 };
     for (let i = 1; i < 4; i++) snake.push({ x: snake[0].x - i, y: snake[0].y });
@@ -231,18 +246,24 @@ document.addEventListener('DOMContentLoaded', () => {
     draw();
   }
   function placeFood() {
+    if (cols <= 0 || rows <= 0) { food = { x: 0, y: 0 }; return; }
     do { food = { x: Math.floor(Math.random() * cols), y: Math.floor(Math.random() * rows) }; }
     while (snake.some(s => s.x === food.x && s.y === food.y));
   }
   function draw() {
+    // draw in CSS pixel coordinates; canvas is scaled by DPR internally
+    ctx.save();
+    ctx.scale(dpr, dpr);
+    const size = canvas.width / dpr;
     ctx.fillStyle = '#050518';
-    ctx.fillRect(0, 0, canvas.width, canvas.height);
+    ctx.fillRect(0, 0, size, size);
     ctx.fillStyle = '#f43f5e';
     ctx.fillRect(food.x * tile + 2, food.y * tile + 2, tile - 4, tile - 4);
     snake.forEach((s, i) => {
       ctx.fillStyle = i === 0 ? '#c084fc' : '#60a5fa';
       ctx.fillRect(s.x * tile + 1, s.y * tile + 1, tile - 2, tile - 2);
     });
+    ctx.restore();
   }
   function step() {
     const head = { x: snake[0].x + dir.x, y: snake[0].y + dir.y };
@@ -258,15 +279,14 @@ document.addEventListener('DOMContentLoaded', () => {
   }
   function startWorm() { if (running) return; running = true; gameInterval = setInterval(step, 120); }
   function stopWorm() { running = false; clearInterval(gameInterval); }
-  function resetAndStart() { resetWorm(); startWorm(); }
 
   function updateDemoUI() {
     const bar = document.getElementById('worm-demo-progress');
     const pct = document.getElementById('worm-demo-percent');
     const wrap = document.getElementById('worm-demo');
     if (!bar || !pct || !wrap) return;
-    bar.style.width = `${Math.floor(demoProgress)}%`;
-    pct.textContent = `${Math.floor(demoProgress)}%`;
+    bar.style.width = Math.floor(demoProgress) + '%';
+    pct.textContent = Math.floor(demoProgress) + '%';
     wrap.style.display = demoRunning ? 'flex' : 'none';
   }
 
@@ -303,13 +323,23 @@ document.addEventListener('DOMContentLoaded', () => {
     updateDemoUI();
   }
 
+  // responsive init
+  resizeCanvas();
   resetWorm();
   updateDemoUI();
 
+  // touch/swipe support for mobile
+  let touchStart = null;
+  canvas.addEventListener('touchstart', (e) => { const t = e.touches[0]; touchStart = { x: t.clientX, y: t.clientY }; }, { passive: true });
+  canvas.addEventListener('touchend', (e) => {
+    if (!touchStart) return; const t = e.changedTouches[0]; const dx = t.clientX - touchStart.x; const dy = t.clientY - touchStart.y; const absX = Math.abs(dx); const absY = Math.abs(dy); const threshold = 20; if (Math.max(absX, absY) < threshold) { touchStart = null; return; } if (absX > absY) dir = { x: dx > 0 ? 1 : -1, y: 0 }; else dir = { x: 0, y: dy > 0 ? 1 : -1 }; touchStart = null; }, { passive: true });
+
+  // controls
   document.getElementById('worm-start').addEventListener('click', () => { stopAutoDemo(); startWorm(); });
   document.getElementById('worm-pause').addEventListener('click', () => { if (running) stopWorm(); else { stopAutoDemo(); startWorm(); } });
   document.getElementById('worm-reset').addEventListener('click', () => { stopAutoDemo(); resetWorm(); stopWorm(); });
 
+  // keyboard controls remain
   document.addEventListener('keydown', (e) => {
     const keyMap = { ArrowUp: [0, -1], ArrowDown: [0, 1], ArrowLeft: [-1, 0], ArrowRight: [1, 0], w: [0, -1], s: [0, 1], a: [-1, 0], d: [1, 0] };
     const k = e.key;
@@ -319,6 +349,18 @@ document.addEventListener('DOMContentLoaded', () => {
       dir = { x, y };
       e.preventDefault();
     }
+  });
+
+  // responsive resize handler — preserve running/demo state
+  window.addEventListener('resize', () => {
+    const wasRunning = running;
+    const wasDemo = demoRunning;
+    stopWorm();
+    stopAutoDemo();
+    resizeCanvas();
+    resetWorm();
+    if (wasRunning) startWorm();
+    else if (wasDemo) startAutoDemo();
   });
 
   // pause/cleanup when modal closes
