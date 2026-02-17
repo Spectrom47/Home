@@ -262,6 +262,93 @@ document.addEventListener('DOMContentLoaded', () => {
   // initialize (manifest preferred)
   initGallery();
 
+  /* ---- Weather widget ---- */
+  const WEATHER_ZIP_KEY = 'weather_last_zip';
+  const WEATHER_CACHE_KEY = 'weather_last_data';
+  const zipInput = document.getElementById('weather-zip');
+  const weatherGetBtn = document.getElementById('weather-get');
+  const weatherUseLastBtn = document.getElementById('weather-use-last');
+  const weatherOutput = document.getElementById('weather-output');
+  const weatherForecastEl = document.getElementById('weather-forecast');
+
+  const weatherCodeMap = {
+    0: 'Clear', 1: 'Mainly clear', 2: 'Partly cloudy', 3: 'Overcast',
+    45: 'Fog', 48: 'Depositing rime fog',
+    51: 'Light drizzle', 53: 'Moderate drizzle', 55: 'Heavy drizzle',
+    56: 'Freezing drizzle', 57: 'Freezing drizzle',
+    61: 'Light rain', 63: 'Moderate rain', 65: 'Heavy rain',
+    66: 'Freezing rain', 67: 'Freezing rain',
+    71: 'Light snow', 73: 'Moderate snow', 75: 'Heavy snow', 77: 'Snow grains',
+    80: 'Rain showers', 81: 'Moderate showers', 82: 'Violent showers',
+    85: 'Snow showers', 86: 'Heavy snow showers',
+    95: 'Thunderstorm', 96: 'Thunder + hail', 99: 'Thunder + heavy hail'
+  };
+
+  function cToF(c) { return Math.round((c * 9/5) + 32); }
+  function fmtTemp(c) { return `${cToF(Number(c))}°F`; }
+
+  async function geoForZip(zip) {
+    const r = await fetch(`https://api.zippopotam.us/us/${zip}`);
+    if (!r.ok) throw new Error('ZIP not found');
+    const j = await r.json();
+    const place = j.places && j.places[0];
+    return { lat: Number(place.latitude), lon: Number(place.longitude), name: `${place['place name']}, ${j['state abbreviation']}` };
+  }
+
+  async function fetchWeather(lat, lon) {
+    const url = `https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lon}&daily=temperature_2m_max,temperature_2m_min,weathercode&current_weather=true&timezone=auto&forecast_days=4`;
+    const r = await fetch(url);
+    if (!r.ok) throw new Error('Weather API error');
+    return r.json();
+  }
+
+  function renderWeather(data, placeName) {
+    if (!data) return;
+    const cur = data.current_weather || {};
+    const daily = data.daily || {};
+    weatherOutput.innerHTML = `<div class="weather-summary"><div class="weather-place">${escapeHtml(placeName||'Unknown')}</div><div class="weather-now">${fmtTemp(cur.temperature||0)} — ${escapeHtml(weatherCodeMap[cur.weathercode]||'')}</div></div>`;
+
+    // next 3 days (skip today's index 0)
+    const times = daily.time || [];
+    const tmax = daily.temperature_2m_max || [];
+    const tmin = daily.temperature_2m_min || [];
+    const wcodes = daily.weathercode || [];
+    let html = '';
+    for (let i = 1; i <= 3; i++) {
+      if (!times[i]) continue;
+      const date = new Date(times[i]);
+      const label = date.toLocaleDateString(undefined, { weekday: 'short', month: 'numeric', day: 'numeric' });
+      html += `<div class="forecast-day"><div class="date">${label}</div><div class="temps">H: ${fmtTemp(tmax[i]||0)}<br/>L: ${fmtTemp(tmin[i]||0)}</div><div class="desc">${escapeHtml(weatherCodeMap[wcodes[i]]||'')}</div></div>`;
+    }
+    weatherForecastEl.innerHTML = html || '<div class="empty">No forecast available</div>';
+  }
+
+  async function getWeatherForZip(zip) {
+    weatherOutput.textContent = 'Loading...';
+    weatherForecastEl.innerHTML = '';
+    try {
+      const geo = await geoForZip(zip);
+      const data = await fetchWeather(geo.lat, geo.lon);
+      localStorage.setItem(WEATHER_ZIP_KEY, zip);
+      localStorage.setItem(WEATHER_CACHE_KEY, JSON.stringify({ ts: Date.now(), zip, placeName: geo.name, data }));
+      renderWeather(data, geo.name);
+    } catch (err) {
+      weatherOutput.innerHTML = `<div class="empty">${escapeHtml(err.message)}</div>`;
+    }
+  }
+
+  weatherGetBtn.addEventListener('click', () => { const z = (zipInput.value||'').trim(); if (!z) return; getWeatherForZip(z); });
+  zipInput.addEventListener('keydown', (e) => { if (e.key === 'Enter') weatherGetBtn.click(); });
+  weatherUseLastBtn.addEventListener('click', () => { const last = localStorage.getItem(WEATHER_ZIP_KEY); if (last) { zipInput.value = last; weatherGetBtn.click(); } });
+
+  // hydrate from cache if available
+  (function hydrateWeather() {
+    const last = localStorage.getItem(WEATHER_ZIP_KEY) || '';
+    zipInput.value = last;
+    const cached = JSON.parse(localStorage.getItem(WEATHER_CACHE_KEY) || 'null');
+    if (cached && cached.data) renderWeather(cached.data, cached.placeName || cached.zip);
+  })();
+
   monthlySalaryEl.value = localStorage.getItem(SALARY_KEY) || '';
   renderBills();
 

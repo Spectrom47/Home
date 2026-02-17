@@ -497,6 +497,20 @@ body::before {
 
 .gallery-add input { padding:8px; border-radius:8px; border:1px solid rgba(255,255,255,0.03); width:220px; background:transparent; color:#fff; }
 
+/* Weather widget */
+.weather-controls { display:flex; gap:12px; align-items:center; justify-content:center; flex-wrap:wrap; margin-top:8px; }
+.weather-controls input { padding:8px 10px; border-radius:8px; border:1px solid rgba(255,255,255,0.06); background:rgba(255,255,255,0.02); color:#fff; min-width:120px; }
+.weather-actions { display:flex; gap:8px; align-items:center; }
+.weather-output { margin-top:12px; padding:12px; border-radius:8px; background:rgba(255,255,255,0.02); border:1px solid rgba(255,255,255,0.03); min-height:44px; }
+.weather-summary { display:flex; gap:12px; align-items:center; justify-content:space-between; }
+.weather-place { font-weight:700; color:#c7d2fe; }
+.weather-now { font-size:1.15rem; color:#a7f3d0; }
+.weather-forecast { display:flex; gap:10px; margin-top:10px; justify-content:center; flex-wrap:wrap; }
+.forecast-day { background: rgba(255,255,255,0.02); padding:8px 10px; border-radius:8px; border:1px solid rgba(255,255,255,0.03); min-width:92px; text-align:center; }
+.forecast-day .date { font-weight:700; color:#e2e8f0; margin-bottom:6px; }
+.forecast-day .temps { color:#a7f3d0; font-weight:700; }
+.forecast-day .desc { font-size:0.85rem; color:#cbd5e1; margin-top:6px; }
+
 .widgets-footer { text-align:center; margin-top:14px; color:#9ca3af; }
 
 @media (max-width:680px) {

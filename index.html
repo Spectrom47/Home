@@ -44,6 +44,7 @@
       <button class="widget-tab" data-widget="bills">Bills & Net</button>
       <button class="widget-tab" data-widget="worm">Worm Game</button>
       <button class="widget-tab" data-widget="gallery">Gallery</button>
+      <button class="widget-tab" data-widget="weather">Weather</button>
     </div>
 
     <div class="widgets-content">
@@ -119,6 +120,22 @@
           <div class="gallery-hint"><small>Click a thumbnail to preview. Relative filenames are resolved from /images/</small></div>
         </div>
         <div id="gallery-lightbox" class="gallery-lightbox hidden" role="dialog" aria-hidden="true"><img id="gallery-lightbox-img" alt="preview"/></div>
+      </section>
+
+      <section id="widget-weather" class="widget hidden">
+        <div class="weather-controls">
+          <label>ZIP code (US):
+            <input id="weather-zip" type="text" placeholder="e.g. 90210" maxlength="10" />
+          </label>
+          <div class="weather-actions">
+            <button id="weather-get" class="btn">Get Weather</button>
+            <button id="weather-use-last" class="btn btn-ghost">Use last</button>
+          </div>
+        </div>
+
+        <div id="weather-output" class="weather-output">Enter ZIP code and press Get Weather.</div>
+        <div id="weather-forecast" class="weather-forecast" aria-live="polite"></div>
+      </section>
       </section>
     </div>
 
