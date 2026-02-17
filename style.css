@@ -9,6 +9,11 @@ body {
     overflow-x: hidden;
 }
 
+/* Prevent mobile browsers from auto-scaling/auto-sizing text */
+html { -webkit-text-size-adjust: 100%; -ms-text-size-adjust: 100%; }
+/* Respect safe-area insets on iOS fullscreen */
+:root { --safe-top: env(safe-area-inset-top); --safe-bottom: env(safe-area-inset-bottom); }
+
 /* Enhanced Star Background */
 .stars {
     position: fixed;
